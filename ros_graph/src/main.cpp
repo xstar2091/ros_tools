@@ -1,7 +1,8 @@
 #include <cstring>
+#include <memory>
 #include <fmt/format.h>
 #include "ros_graph/worker/worker.h"
-bool showHelpInfo(int argc, char* argv[]);
+bool showHelpInfo(int argc, char** argv);
 
 int main(int argc, char* argv[])
 {
@@ -13,6 +14,11 @@ int main(int argc, char* argv[])
             exit_code = 0;
             break;
         }
+
+        std::unique_ptr<Worker> worker(Worker::create(argv[1]));
+        if (worker.get() == nullptr) break;
+        if (!worker->init(argc, argv)) break;
+        if (!worker->run()) break;
         exit_code = 0;
     } while (false);
     return exit_code;
@@ -24,7 +30,7 @@ command list:
 depend: 显示指定包的依赖
 )startstring";
 
-bool showHelpInfo(int argc, char* argv[])
+bool showHelpInfo(int argc, char** argv)
 {
     if (argc == 1)
     {
