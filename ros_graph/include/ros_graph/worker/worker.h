@@ -6,8 +6,9 @@ class Worker
 {
 public:
     virtual ~Worker();
-    virtual bool init(int& argc, char** argv) = 0;
+    virtual bool init(int& argc, char**& argv) = 0;
     virtual bool run() = 0;
+    virtual void printDebugInfo();
 
 public:
     static Worker* create(const char* command);

@@ -7,22 +7,25 @@ class CommandLineParam
 public:
     CommandLineParam();
     ~CommandLineParam();
-    bool init(int& argc, char** argv);
+    bool init(int& argc, char**& argv);
 
 public:
     std::string module_name;
     std::string ros_tool_dir;
+    std::string command;
 
 public:
+    bool is_debug_mode_set_by_cmd;
     bool is_package_set_by_cmd;
     bool is_workspace_dir_set_by_cmd;
 
+    bool is_debug_mode;
     std::string package;
     std::string workspace_dir;
 
 private:
     bool findRosToolDir();
     // 从.ros_tool/ros_graph/${module_name}.ini配置文件中读取参数
-    void readParamFromRosToolDir(const std::string& command);
-    void readParamFromCommandLine(int& argc, char** argv);
+    void readParamFromRosToolDir();
+    void readParamFromCommandLine(int& argc, char**& argv);
 };

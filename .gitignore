@@ -32,5 +32,6 @@
 *.app
 
 .cache
+.ros_tool
 .vscode
 build

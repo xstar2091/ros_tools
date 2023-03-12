@@ -1,8 +1,9 @@
 #include "ros_graph/command_line_param.h"
 
-#define STRIP_FLAG_HELP 1
+//#define STRIP_FLAG_HELP 1
 
 #include <boost/filesystem.hpp>
+#include <fmt/format.h>
 #include <gflags/gflags.h>
 
 #define ROS_GRAPH_ROS_TOOL_DIR_NAME ".ros_tool"
@@ -14,8 +15,10 @@ DEFINE_string(workspace_dir, ROS_GRAPH_DEFAULT_PARAM_WORKSPACE_DIR, "");
 
 CommandLineParam::CommandLineParam()
     : module_name("ros_graph")
+    , is_debug_mode_set_by_cmd(false)
     , is_package_set_by_cmd(false)
     , is_workspace_dir_set_by_cmd(false)
+    , is_debug_mode(true)
 {}
 
 CommandLineParam::~CommandLineParam()
@@ -23,13 +26,13 @@ CommandLineParam::~CommandLineParam()
     gflags::ShutDownCommandLineFlags();
 }
 
-bool CommandLineParam::init(int& argc, char** argv)
+bool CommandLineParam::init(int& argc, char**& argv)
 {
-    std::string command(argv[1]);
+    command = argv[1];
     readParamFromCommandLine(argc, argv);
     if (findRosToolDir())
     {
-        readParamFromRosToolDir(command);
+        readParamFromRosToolDir();
     }
     return true;
 }
@@ -57,34 +60,44 @@ bool CommandLineParam::findRosToolDir()
     {
         workspace_dir = tmp;
     }
+    if (is_debug_mode)
+    {
+        if (is_workspace_dir_set_by_cmd)
+        {
+            fmt::print("workspace_dir is set from command line:{}\n", workspace_dir);
+        }
+        else if (ret)
+        {
+            fmt::print("ros_tool path is found:{}, set workspace_dir to:{}\n", ros_tool_path.string(), workspace_dir);
+        }
+        else
+        {
+            fmt::print("ros_tool path is not found, set workspace_dir to:{}\n", workspace_dir);
+        }
+    }
     return false;
 }
 
-void CommandLineParam::readParamFromRosToolDir(const std::string& command)
+void CommandLineParam::readParamFromRosToolDir()
 {
     boost::filesystem::path path(ros_tool_dir);
     path = path / module_name / command;
     std::string file_path = path.string() + ".ini";
     gflags::SetCommandLineOption("flagfile", file_path.c_str());
 
-    package = FLAGS_package;
+    if (!is_package_set_by_cmd) package = FLAGS_package;
 }
 
-void CommandLineParam::readParamFromCommandLine(int& argc, char** argv)
+void CommandLineParam::readParamFromCommandLine(int& argc, char**& argv)
 {
     gflags::ParseCommandLineFlags(&argc, &argv, true);
-
     gflags::CommandLineFlagInfo info;
+
     gflags::GetCommandLineFlagInfo("package", &info);
-    if (!info.is_default)
-    {
-        package = FLAGS_package;
-        is_package_set_by_cmd = true;
-    }
+    if (!info.is_default) is_package_set_by_cmd = true;
+    package = FLAGS_package;
+
     gflags::GetCommandLineFlagInfo("workspace_dir", &info);
-    if (!info.is_default)
-    {
-        workspace_dir = FLAGS_workspace_dir;
-        is_workspace_dir_set_by_cmd = true;
-    }
+    if (!info.is_default) is_workspace_dir_set_by_cmd = true;
+    workspace_dir = FLAGS_workspace_dir;
 }

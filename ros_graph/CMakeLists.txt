@@ -30,10 +30,12 @@ target_link_libraries(${PROJECT_NAME}
 )
 
 add_executable(unittest
+    test/command_line_param_test.cpp
     test/graph_test.cpp
 )
 target_link_libraries(unittest
     ${ROS_GRAPH_LIBRARY_NAME}
+    ${Boost_LIBRARIES}
     gtest_main
     gtest
 )
