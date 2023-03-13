@@ -21,7 +21,6 @@ CommandLineParam::CommandLineParam()
     , is_package_set_by_cmd(false)
     , is_workspace_dir_set_by_cmd(false)
     , is_separator_set_by_cmd(false)
-    , is_debug_mode(true)
 {}
 
 CommandLineParam::~CommandLineParam()
@@ -62,21 +61,6 @@ bool CommandLineParam::findRosToolDir()
     if (!is_workspace_dir_set_by_cmd)
     {
         workspace_dir = tmp;
-    }
-    if (is_debug_mode)
-    {
-        if (is_workspace_dir_set_by_cmd)
-        {
-            fmt::print("workspace_dir is set from command line:{}\n", workspace_dir);
-        }
-        else if (ret)
-        {
-            fmt::print("ros_tool path is found:{}, set workspace_dir to:{}\n", ros_tool_path.string(), workspace_dir);
-        }
-        else
-        {
-            fmt::print("ros_tool path is not found, set workspace_dir to:{}\n", workspace_dir);
-        }
     }
     return false;
 }

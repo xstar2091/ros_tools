@@ -10,7 +10,6 @@ public:
     virtual bool init(int& argc, char**& argv) override;
     virtual bool check() override;
     virtual bool run() override;
-    virtual void printDebugInfo() override;
 
 private:
     DependWorkerParam param_;

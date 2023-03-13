@@ -57,9 +57,3 @@ bool DependWorker::run()
     fmt::print("\n");
     return true;
 }
-
-void DependWorker::printDebugInfo()
-{
-    if (!command_line_param_.is_debug_mode) return;
-    Worker::printDebugInfo();
-}
