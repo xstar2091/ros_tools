@@ -18,10 +18,12 @@ public:
     bool is_debug_mode_set_by_cmd;
     bool is_package_set_by_cmd;
     bool is_workspace_dir_set_by_cmd;
+    bool is_separator_set_by_cmd;
 
     bool is_debug_mode;
     std::string package;
     std::string workspace_dir;
+    std::string separator;
 
 private:
     bool findRosToolDir();

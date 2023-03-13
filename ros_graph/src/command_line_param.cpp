@@ -9,15 +9,18 @@
 #define ROS_GRAPH_ROS_TOOL_DIR_NAME ".ros_tool"
 #define ROS_GRAPH_DEFAULT_PARAM_PACKAGE ""
 #define ROS_GRAPH_DEFAULT_PARAM_WORKSPACE_DIR ""
+#define ROS_GRAPH_DEFAULT_PARAM_SEPARATOR ";"
 
 DEFINE_string(package, ROS_GRAPH_DEFAULT_PARAM_PACKAGE, "");
 DEFINE_string(workspace_dir, ROS_GRAPH_DEFAULT_PARAM_WORKSPACE_DIR, "");
+DEFINE_string(separator, ROS_GRAPH_DEFAULT_PARAM_SEPARATOR, "");
 
 CommandLineParam::CommandLineParam()
     : module_name("ros_graph")
     , is_debug_mode_set_by_cmd(false)
     , is_package_set_by_cmd(false)
     , is_workspace_dir_set_by_cmd(false)
+    , is_separator_set_by_cmd(false)
     , is_debug_mode(true)
 {}
 
@@ -86,6 +89,7 @@ void CommandLineParam::readParamFromRosToolDir()
     gflags::SetCommandLineOption("flagfile", file_path.c_str());
 
     if (!is_package_set_by_cmd) package = FLAGS_package;
+    if (!is_separator_set_by_cmd) separator = FLAGS_separator;
 }
 
 void CommandLineParam::readParamFromCommandLine(int& argc, char**& argv)
@@ -100,4 +104,10 @@ void CommandLineParam::readParamFromCommandLine(int& argc, char**& argv)
     gflags::GetCommandLineFlagInfo("workspace_dir", &info);
     if (!info.is_default) is_workspace_dir_set_by_cmd = true;
     workspace_dir = FLAGS_workspace_dir;
+
+    gflags::GetCommandLineFlagInfo("separator", &info);
+    if (!info.is_default) is_separator_set_by_cmd = true;
+    separator = FLAGS_separator;
+    if (separator == "\\n") separator = "\n";
+    if (separator == "\\r\\n") separator = "\r\n";
 }

@@ -18,6 +18,7 @@ int main(int argc, char* argv[])
         std::unique_ptr<Worker> worker(Worker::create(argv[1]));
         if (worker.get() == nullptr) break;
         if (!worker->init(argc, argv)) break;
+        if (!worker->check()) break;
         if (!worker->run()) break;
         exit_code = 0;
     } while (false);

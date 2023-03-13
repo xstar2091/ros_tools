@@ -16,6 +16,7 @@ add_library(${ROS_GRAPH_LIBRARY_NAME} STATIC
     src/command_line_param.cpp
     src/depend_graph.cpp
     src/worker/worker.cpp
+    src/worker/depend/depend_worker_param.cpp
     src/worker/depend/depend_worker.cpp
 )
 target_link_libraries(${ROS_GRAPH_LIBRARY_NAME}
