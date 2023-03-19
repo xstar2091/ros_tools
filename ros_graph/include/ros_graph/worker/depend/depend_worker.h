@@ -12,5 +12,10 @@ public:
     virtual bool run() override;
 
 private:
+    void findPackages(std::vector<std::string>& package_list);
+    void sortPackages(std::vector<std::string>& package_list);
+    void printPackages(std::vector<std::string>& package_list);
+
+private:
     DependWorkerParam param_;
 };

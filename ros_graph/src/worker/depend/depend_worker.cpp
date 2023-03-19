@@ -1,5 +1,6 @@
 #include "ros_graph/worker/depend/depend_worker.h"
 
+#include <algorithm>
 #include <queue>
 #include <unordered_set>
 #include <fmt/format.h>
@@ -32,6 +33,18 @@ bool DependWorker::check()
 
 bool DependWorker::run()
 {
+    std::vector<std::string> package_list;
+    findPackages(package_list);
+    if (package_list.empty()) return true;
+    sortPackages(package_list);
+    printPackages(package_list);
+    
+    return true;
+}
+
+void DependWorker::findPackages(std::vector<std::string>& package_list)
+{
+    package_list.emplace_back(param_.package);
     std::unordered_set<std::string> table{param_.package};
     std::queue<GraphNode<std::string>*> queue;
     queue.push(depend_graph_.depend_graph().nodes()[param_.package]);
@@ -42,18 +55,37 @@ bool DependWorker::run()
         for (auto& pair : package->next_nodes())
         {
             queue.push(pair.second);
-            table.insert(pair.second->value());
+            const std::string& package = pair.second->value();
+            if (table.count(package) == 0)
+            {
+                table.insert(package);
+                package_list.emplace_back(package);
+            }
         }
     }
+}
 
-    if (table.empty()) return true;
+void DependWorker::sortPackages(std::vector<std::string>& package_list)
+{
+    for (size_t i = 0; i < package_list.size(); i++)
+    {
+        for (size_t j = i + 1; j < package_list.size(); j++)
+        {
+            if (depend_graph_.depend_graph().isEdgeExist(package_list[i], package_list[j]))
+            {
+                std::swap(package_list[i], package_list[j]);
+            }
+        }
+    }
+}
 
-    auto it = table.begin();
+void DependWorker::printPackages(std::vector<std::string>& package_list)
+{
+    auto it = package_list.begin();
     fmt::print("{}", *it);
-    for (++it; it != table.end(); ++it)
+    for (++it; it != package_list.end(); ++it)
     {
         fmt::print("{}{}", param_.separator, *it);
     }
     fmt::print("\n");
-    return true;
 }

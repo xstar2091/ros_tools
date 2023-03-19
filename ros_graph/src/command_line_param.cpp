@@ -2,6 +2,7 @@
 
 //#define STRIP_FLAG_HELP 1
 
+#include <limits>
 #include <boost/filesystem.hpp>
 #include <fmt/format.h>
 #include <gflags/gflags.h>
@@ -11,16 +12,18 @@
 #define ROS_GRAPH_DEFAULT_PARAM_WORKSPACE_DIR ""
 #define ROS_GRAPH_DEFAULT_PARAM_SEPARATOR ";"
 
+DEFINE_int32(level, 0, "");
 DEFINE_string(package, ROS_GRAPH_DEFAULT_PARAM_PACKAGE, "");
 DEFINE_string(workspace_dir, ROS_GRAPH_DEFAULT_PARAM_WORKSPACE_DIR, "");
 DEFINE_string(separator, ROS_GRAPH_DEFAULT_PARAM_SEPARATOR, "");
 
 CommandLineParam::CommandLineParam()
     : module_name("ros_graph")
-    , is_debug_mode_set_by_cmd(false)
+    , is_level_set_by_cmd(false)
     , is_package_set_by_cmd(false)
     , is_workspace_dir_set_by_cmd(false)
     , is_separator_set_by_cmd(false)
+    , level(0)
 {}
 
 CommandLineParam::~CommandLineParam()
@@ -72,6 +75,7 @@ void CommandLineParam::readParamFromRosToolDir()
     std::string file_path = path.string() + ".ini";
     gflags::SetCommandLineOption("flagfile", file_path.c_str());
 
+    if (!is_level_set_by_cmd) level = FLAGS_level > 0 ? FLAGS_level : std::numeric_limits<int>::max();
     if (!is_package_set_by_cmd) package = FLAGS_package;
     if (!is_separator_set_by_cmd) separator = FLAGS_separator;
 }
@@ -80,6 +84,10 @@ void CommandLineParam::readParamFromCommandLine(int& argc, char**& argv)
 {
     gflags::ParseCommandLineFlags(&argc, &argv, true);
     gflags::CommandLineFlagInfo info;
+
+    gflags::GetCommandLineFlagInfo("level", &info);
+    if (!info.is_default) is_level_set_by_cmd = true;
+    level = FLAGS_level > 0 ? FLAGS_level : std::numeric_limits<int>::max();
 
     gflags::GetCommandLineFlagInfo("package", &info);
     if (!info.is_default) is_package_set_by_cmd = true;

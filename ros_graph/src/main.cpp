@@ -27,8 +27,24 @@ int main(int argc, char* argv[])
 
 const char* help_info = R"startstring(usage:
 {} <command> [options]
+
+version: 0.1.0
+
 command list:
-depend: 显示指定包的依赖
+depend:   显示指定包的依赖
+dependby: 显示指定包被哪些包依赖
+
+公共选项
+    --workspace_dir catkin workspace 目录
+
+命令选项
+depend
+    --package 指定的包(不可指定空字符串，不可指定多个包)
+    --separator 输出包的分隔符
+dependby
+    --level   分析深度
+    --package 指定的包(不可指定空字符串，不可指定多个包)
+    --separator 输出包的分隔符
 )startstring";
 
 bool showHelpInfo(int argc, char** argv)
