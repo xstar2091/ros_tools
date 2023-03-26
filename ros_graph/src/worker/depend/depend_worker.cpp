@@ -2,7 +2,7 @@
 
 #include <algorithm>
 #include <queue>
-#include <unordered_set>
+#include <boost/algorithm/string.hpp>
 #include <fmt/format.h>
 
 DependWorker::~DependWorker()
@@ -13,28 +13,37 @@ bool DependWorker::init(int& argc, char**& argv)
     if (!command_line_param_.init(argc, argv)) return false;
     if (!param_.reset(command_line_param_)) return false;
     if (!depend_graph_.init(param_.workspace_dir)) return false;
+    boost::split(package_list_, param_.package, boost::is_any_of(";"));
+    package_list_.erase(std::remove(package_list_.begin(), package_list_.end(), std::string()), package_list_.end());
     return true;
 }
 
 bool DependWorker::check()
 {
-    if (param_.package.empty())
+    for (const auto& package : package_list_)
     {
-        fmt::print(stderr, "not implemented for all packages depend analysis\n");
-        return false;
+        if (!depend_graph_.depend_graph().isNodeExist(package))
+        {
+            fmt::print(stderr, "unknown package: {}\n", package);
+            return false;
+        }
     }
-    if (!depend_graph_.depend_graph().isNodeExist(param_.package))
-    {
-        fmt::print(stderr, "unknown package: {}\n", param_.package);
-        return false;
-    }
+    // if (param_.package.empty())
+    // {
+    //     fmt::print(stderr, "not implemented for all packages depend analysis\n");
+    //     return false;
+    // }
     return true;
 }
 
 bool DependWorker::run()
 {
     std::vector<std::string> package_list;
-    findPackages(package_list);
+    std::unordered_set<std::string> table;
+    for (const auto& package : package_list_)
+    {
+        findPackages(package, table, package_list);
+    }
     if (package_list.empty()) return true;
     sortPackages(package_list);
     printPackages(package_list);
@@ -42,12 +51,12 @@ bool DependWorker::run()
     return true;
 }
 
-void DependWorker::findPackages(std::vector<std::string>& package_list)
+void DependWorker::findPackages(const std::string& package_name,
+                                std::unordered_set<std::string>& table,
+                                std::vector<std::string>& package_list)
 {
-    package_list.emplace_back(param_.package);
-    std::unordered_set<std::string> table{param_.package};
     std::queue<GraphNode<std::string>*> queue;
-    queue.push(depend_graph_.depend_graph().nodes()[param_.package]);
+    queue.push(depend_graph_.depend_graph().nodes()[package_name]);
     while (!queue.empty())
     {
         GraphNode<std::string>* package = queue.front();
@@ -63,6 +72,7 @@ void DependWorker::findPackages(std::vector<std::string>& package_list)
             }
         }
     }
+    package_list.emplace_back(package_name);
 }
 
 void DependWorker::sortPackages(std::vector<std::string>& package_list)

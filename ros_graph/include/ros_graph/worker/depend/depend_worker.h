@@ -1,5 +1,6 @@
 #pragma once
 
+#include <unordered_set>
 #include "ros_graph/worker/worker.h"
 #include "ros_graph/worker/depend/depend_worker_param.h"
 
@@ -12,10 +13,13 @@ public:
     virtual bool run() override;
 
 private:
-    void findPackages(std::vector<std::string>& package_list);
+    void findPackages(const std::string& package_name,
+                      std::unordered_set<std::string>& table,
+                      std::vector<std::string>& package_list);
     void sortPackages(std::vector<std::string>& package_list);
     void printPackages(std::vector<std::string>& package_list);
 
 private:
     DependWorkerParam param_;
+    std::vector<std::string> package_list_;
 };
