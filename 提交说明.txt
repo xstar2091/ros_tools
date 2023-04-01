@@ -1,1 +1,0 @@
-depend命令支持多package

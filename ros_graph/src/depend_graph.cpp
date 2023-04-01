@@ -100,6 +100,10 @@ bool DependGraph::init(const std::string& workspace_dir)
     }
     for (auto& pair : depend_map_)
     {
+        depend_graph_.createNode(pair.first);
+    }
+    for (auto& pair : depend_map_)
+    {
         pair.second.findDependPackage([this] (const std::string& package, const std::string& depend_package) {
             auto it = this->depend_map_.find(depend_package);
             if (it == this->depend_map_.end()) return;
