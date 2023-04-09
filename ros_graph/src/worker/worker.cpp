@@ -1,5 +1,6 @@
 #include "ros_graph/worker/worker.h"
 #include "ros_graph/worker/depend/depend_worker.h"
+#include "ros_graph/worker/dependby/dependby_worker.h"
 #include <fmt/format.h>
 
 Worker::~Worker()
@@ -11,6 +12,10 @@ Worker* Worker::create(const char *command)
     if (strcmp(command, "depend") == 0)
     {
         worker = new DependWorker;
+    }
+    else if (strcmp(command, "dependby") == 0)
+    {
+        worker = new DependByWorker;
     }
 
     if (worker == nullptr)
