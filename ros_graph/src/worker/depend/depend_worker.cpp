@@ -68,6 +68,7 @@ void DependWorker::findPackages(const std::string& package_name,
 {
     if (table.count(package_name) == 0)
     {
+        table.insert(package_name);
         package_list.emplace_back(package_name);
     }
     std::queue<GraphNode<std::string>*> queue;
@@ -79,11 +80,11 @@ void DependWorker::findPackages(const std::string& package_name,
         for (auto& pair : package->next_nodes())
         {
             queue.push(pair.second);
-            const std::string& package = pair.second->value();
-            if (table.count(package) == 0)
+            const std::string& depend_package = pair.second->value();
+            if (table.count(depend_package) == 0)
             {
-                table.insert(package);
-                package_list.emplace_back(package);
+                table.insert(depend_package);
+                package_list.emplace_back(depend_package);
             }
         }
     }
