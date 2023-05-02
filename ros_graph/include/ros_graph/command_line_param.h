@@ -16,11 +16,13 @@ public:
 
 public:
     bool is_level_set_by_cmd;
+    bool is_indent_set_by_cmd;
     bool is_package_set_by_cmd;
     bool is_workspace_dir_set_by_cmd;
     bool is_separator_set_by_cmd;
 
     int level;
+    int indent;
 
     std::string package;
     std::string workspace_dir;
