@@ -2,6 +2,7 @@
 #include "ros_graph/worker/depend/depend_worker.h"
 #include "ros_graph/worker/dependby/dependby_worker.h"
 #include "ros_graph/worker/dependtree/dependtree_worker.h"
+#include "ros_graph/worker/dependtreeby/dependtreeby_worker.h"
 #include <fmt/format.h>
 
 Worker::~Worker()
@@ -21,6 +22,10 @@ Worker* Worker::create(const char *command)
     else if (strcmp(command, "dependtree") == 0)
     {
         worker = new DependTreeWorker;
+    }
+    else if (strcmp(command, "dependtreeby") == 0)
+    {
+        worker = new DependTreeByWorker;
     }
 
     if (worker == nullptr)

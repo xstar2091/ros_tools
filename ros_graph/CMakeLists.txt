@@ -22,6 +22,8 @@ add_library(${ROS_GRAPH_LIBRARY_NAME} STATIC
     src/worker/dependby/dependby_worker.cpp
     src/worker/dependtree/dependtree_worker_param.cpp
     src/worker/dependtree/dependtree_worker.cpp
+    src/worker/dependtreeby/dependtreeby_worker_param.cpp
+    src/worker/dependtreeby/dependtreeby_worker.cpp
 )
 target_link_libraries(${ROS_GRAPH_LIBRARY_NAME}
     ${Boost_LIBRARIES}
