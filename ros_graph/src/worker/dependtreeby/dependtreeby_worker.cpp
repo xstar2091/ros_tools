@@ -70,6 +70,13 @@ void DependTreeByWorker::findPackageDependTree(int indent, GraphNode<std::string
 
 void DependTreeByWorker::printPackage(int indent, const std::string& package_name)
 {
-    fmt::print(param_.separator_format_string, param_.separator, indent);
-    fmt::print("{}\n", package_name);
+    if (indent == 0)
+    {
+        fmt::print("{}\n", package_name);
+    }
+    else
+    {
+        fmt::print(param_.separator_format_string, param_.separator, indent);
+        fmt::print("{}\n", package_name);
+    }
 }
