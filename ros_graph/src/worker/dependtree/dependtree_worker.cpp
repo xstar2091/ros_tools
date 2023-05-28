@@ -56,15 +56,17 @@ void DependTreeWorker::findPackageDependTree(const std::string& package_name)
 {
     GraphNode<std::string>* package = depend_graph_.depend_graph().nodes()[package_name];
     int indent = 0;
-    findPackageDependTree(indent, package);
+    int level = 0;
+    findPackageDependTree(indent, level, package);
 }
 
-void DependTreeWorker::findPackageDependTree(int indent, GraphNode<std::string>* package)
+void DependTreeWorker::findPackageDependTree(int indent, int level, GraphNode<std::string>* package)
 {
+    if (level >= param_.level) return;
     printPackage(indent, package->value());
     for (auto pair : package->next_nodes())
     {
-        findPackageDependTree(indent + param_.indent, pair.second);
+        findPackageDependTree(indent + param_.indent, level + 1, pair.second);
     }
 }
 

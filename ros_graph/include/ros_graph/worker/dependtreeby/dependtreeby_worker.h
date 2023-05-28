@@ -14,7 +14,7 @@ public:
 
 private:
     void findPackageDependTree(const std::string& package_name);
-    void findPackageDependTree(int indent, GraphNode<std::string>* package);
+    void findPackageDependTree(int indent, int level, GraphNode<std::string>* package);
     void printPackage(int indent, const std::string& package_name);
 
 private:

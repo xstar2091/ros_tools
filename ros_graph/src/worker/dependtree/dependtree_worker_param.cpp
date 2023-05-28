@@ -9,6 +9,7 @@ bool DependTreeWorkerParam::reset(const CommandLineParam& param)
     workspace_dir = param.workspace_dir;
     separator = param.separator;
     indent = param.indent;
+    level = param.level;
 
     if (separator == "\n" || separator.size() > 1 || separator.empty())
     {
