@@ -31,20 +31,17 @@ const char* help_info = R"startstring(usage:
 version: 0.1.0
 
 command list:
-depend:   显示指定包的依赖
-dependby: 显示指定包被哪些包依赖
+depend:       显示指定包的依赖
+dependby:     显示指定包被哪些包依赖
+dependtree:   depend命令的树形显示
+dependtreeby: dependby命令的树形显示
 
-公共选项
+options:
+    --indent        树形显示的缩进长度
+    --level         分析深度
+    --package       指定的包
+    --separator     输出分隔符
     --workspace_dir catkin workspace 目录
-
-命令选项
-depend
-    --package 指定的包(不可指定空字符串，不可指定多个包)
-    --separator 输出包的分隔符
-dependby
-    --level   分析深度
-    --package 指定的包(不可指定空字符串，不可指定多个包)
-    --separator 输出包的分隔符
 )startstring";
 
 bool showHelpInfo(int argc, char** argv)

@@ -65,22 +65,31 @@ void DependByWorker::findPackages(const std::string& package_name,
         table.insert(package_name);
         package_list.emplace_back(package_name);
     }
-    std::queue<GraphNode<std::string>*> queue;
-    queue.push(depend_graph_.depend_graph().nodes()[package_name]);
-    while (!queue.empty())
+    int level = 1;
+    std::queue<GraphNode<std::string>*> queue1;
+    std::queue<GraphNode<std::string>*> queue2;
+    std::queue<GraphNode<std::string>*>* current_queue = &queue1;
+    std::queue<GraphNode<std::string>*>* other_queue = &queue2;
+    current_queue->push(depend_graph_.depend_graph().nodes()[package_name]);
+    while (!current_queue->empty())
     {
-        GraphNode<std::string>* package = queue.front();
-        queue.pop();
-        for (auto& pair : package->prev_nodes())
+        if (level++ >= param_.level) break;
+        while (!current_queue->empty())
         {
-            queue.push(pair.second);
-            const std::string& depend_by_package = pair.second->value();
-            if (table.count(depend_by_package) == 0)
+            GraphNode<std::string>* package = current_queue->front();
+            current_queue->pop();
+            for (auto& pair : package->prev_nodes())
             {
-                table.insert(depend_by_package);
-                package_list.emplace_back(depend_by_package);
+                other_queue->push(pair.second);
+                const std::string& depend_by_package = pair.second->value();
+                if (table.count(depend_by_package) == 0)
+                {
+                    table.insert(depend_by_package);
+                    package_list.emplace_back(depend_by_package);
+                }
             }
         }
+        std::swap(current_queue, other_queue);
     }
 }
 

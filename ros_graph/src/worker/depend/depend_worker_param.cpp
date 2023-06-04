@@ -4,6 +4,7 @@
 
 bool DependWorkerParam::reset(const CommandLineParam& param)
 {
+    level = param.level;
     package = param.package;
     workspace_dir = param.workspace_dir;
     separator = param.separator;
