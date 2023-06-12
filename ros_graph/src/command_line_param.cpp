@@ -68,7 +68,7 @@ bool CommandLineParam::findRosToolDir()
     {
         workspace_dir = tmp;
     }
-    return false;
+    return ret;
 }
 
 void CommandLineParam::readParamFromRosToolDir()
@@ -110,4 +110,11 @@ void CommandLineParam::readParamFromCommandLine(int& argc, char**& argv)
     separator = FLAGS_separator;
     if (separator == "\\n") separator = "\n";
     if (separator == "\\r\\n") separator = "\r\n";
+    if (separator == ROS_GRAPH_DEFAULT_PARAM_SEPARATOR)
+    {
+        if (command == "dependtree" || command == "dependtreeby")
+        {
+            separator = " ";
+        }
+    }
 }
