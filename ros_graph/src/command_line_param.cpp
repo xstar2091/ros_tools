@@ -6,6 +6,7 @@
 #include <boost/filesystem.hpp>
 #include <fmt/format.h>
 #include <gflags/gflags.h>
+#include "ros_common/cmdkey/cmdkey.h"
 
 #define ROS_GRAPH_ROS_TOOL_DIR_NAME ".ros_tool"
 #define ROS_GRAPH_DEFAULT_PARAM_PACKAGE ""

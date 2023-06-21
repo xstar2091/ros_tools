@@ -9,7 +9,6 @@ find_package(Boost REQUIRED COMPONENTS
 
 include_directories(
     ${PROJECT_SOURCE_DIR}/include
-    ${Boost_INCLUDE_DIRS}
 )
 
 add_library(${ROS_GRAPH_LIBRARY_NAME} STATIC
@@ -25,7 +24,11 @@ add_library(${ROS_GRAPH_LIBRARY_NAME} STATIC
     src/worker/dependtreeby/dependtreeby_worker_param.cpp
     src/worker/dependtreeby/dependtreeby_worker.cpp
 )
+target_link_directories(${ROS_GRAPH_LIBRARY_NAME} PRIVATE
+    ${Boost_INCLUDE_DIRS}
+)
 target_link_libraries(${ROS_GRAPH_LIBRARY_NAME}
+    ros_common
     ${Boost_LIBRARIES}
     fmt
     gflags
