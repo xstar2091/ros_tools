@@ -24,7 +24,7 @@ public:
     void reset();
 
 private:
-    bool check(char* kv, void* index_list_ptr, int index);
-    void parseKV(char* head, std::string& k, std::string& v);
+    bool check(const char* kv, int index, void* index_list_ptr);
+    void parseKV(const char* head, std::string& k, std::string& v);
     void setKV(const std::string& key, const std::string& val);
 };

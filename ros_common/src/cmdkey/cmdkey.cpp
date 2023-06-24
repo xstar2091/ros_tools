@@ -1,6 +1,8 @@
 #include "ros_common/cmdkey/cmdkey.h"
 
 #include <cstring>
+#include <fstream>
+#include <limits>
 #include <stdexcept>
 #include <unordered_map>
 #include <vector>
@@ -91,17 +93,45 @@ void Cmdkey::parseCommandLine(int& argc, char** argv, bool remove_key)
     for (int ind = 1; ind < argc; ind++)
     {
         kv = argv[ind];
-        if (!check(kv, &index_list, ind))
+        if (!check(kv, ind, &index_list))
         {
             continue;
         }
         parseKV(kv, key, val);
         setKV(key, val);
     }
+    if (!remove_key) return;
+    for (int i = 1, j = 0; j < static_cast<int>(index_list.size()); i++, j++)
+    {
+        if (i == index_list[j]) continue;
+        std::swap(argv[i], argv[index_list[j]]);
+    }
 }
 
 void Cmdkey::parseFile(const char* file_name)
-{}
+{
+    std::ifstream ifs(file_name);
+    if (!ifs)
+    {
+        std::string exception_message("invalid command line key, open file failed:");
+        exception_message.append(file_name);
+        throw std::invalid_argument(exception_message);
+    }
+    std::string key;
+    std::string val;
+    std::string line;
+    int index = 0;
+    std::vector<int> index_list;
+    while (std::getline(ifs, line))
+    {
+        if (!check(line.c_str(), index, &index_list))
+        {
+            continue;
+        }
+        parseKV(line.c_str(), key, val);
+        setKV(key, val);
+    }
+}
 
 void Cmdkey::reset()
 {
@@ -111,7 +141,7 @@ void Cmdkey::reset()
     }
 }
 
-bool Cmdkey::check(char* kv, void* index_list_ptr, int index)
+bool Cmdkey::check(const char* kv, int index, void* index_list_ptr)
 {
     std::vector<int>* index_list = static_cast<std::vector<int>*>(index_list_ptr);
     size_t len = strlen(kv);
@@ -159,18 +189,151 @@ bool Cmdkey::check(char* kv, void* index_list_ptr, int index)
     return false;
 }
 
-void Cmdkey::parseKV(char* head, std::string& k, std::string& v)
+void Cmdkey::parseKV(const char* head, std::string& k, std::string& v)
 {
-    int left = strlen(head);
-    char* h = head;
-    char* k_ptr_start = nullptr;
-    char* k_ptr_end = nullptr;
-    char* v_ptr_start = nullptr;
-    char* v_ptr_end = nullptr;
+    const char* h = head;
+    const char* k_ptr_start = nullptr;
+    const char* k_ptr_end = nullptr;
+    const char* v_ptr_start = nullptr;
+    const char* v_ptr_end = nullptr;
     while (*h == '-') ++h;
     k_ptr_start = h;
     while (*h != '=') ++h;
+    k_ptr_end = h;
+    ++h;
+    v_ptr_start = h;
+    v_ptr_end = head + strlen(head);
+    k.assign(k_ptr_start, k_ptr_end);
+    v.assign(v_ptr_start, v_ptr_end);
 }
 
 void Cmdkey::setKV(const std::string& key, const std::string& val)
-{}
+{
+    auto it = ros_common_internal_cmdkey_info_map.find(key);
+    if (it == ros_common_internal_cmdkey_info_map.end())
+    {
+        std::string exception_message("unknown command line key:");
+        exception_message.append(key);
+        throw std::invalid_argument(exception_message);
+    }
+    CmdkeyInfo& info = it->second;
+    info.is_default = false;
+    info.current_value = val;
+    size_t pos{};
+    try
+    {
+        if (info.type == "bool")
+        {
+            bool* ptr = (bool*)info.ptr;
+            if (val == "true" || val == "1")
+            {
+                *ptr = true;
+            }
+            else
+            {
+                *ptr = false;
+            }
+        }
+        else if (info.type == "int8_t")
+        {
+            int num = std::stoi(val, &pos, 10);
+            if (num < std::numeric_limits<int8_t>::min() || num > std::numeric_limits<int8_t>::max())
+            {
+                throw std::out_of_range("parse number out of range");
+            }
+            int8_t* ptr = (int8_t*)info.ptr;
+            *ptr = static_cast<int8_t>(num);
+        }
+        else if (info.type == "uint8_t")
+        {
+            int num = std::stoi(val, &pos, 10);
+            if (num < std::numeric_limits<uint8_t>::min() || num > std::numeric_limits<uint8_t>::max())
+            {
+                throw std::out_of_range("parse number out of range");
+            }
+            uint8_t* ptr = (uint8_t*)info.ptr;
+            *ptr = static_cast<uint8_t>(num);
+        }
+        else if (info.type == "int16_t")
+        {
+            int num = std::stoi(val, &pos, 10);
+            if (num < std::numeric_limits<int16_t>::min() || num > std::numeric_limits<int16_t>::max())
+            {
+                throw std::out_of_range("parse number out of range");
+            }
+            int16_t* ptr = (int16_t*)info.ptr;
+            *ptr = static_cast<int16_t>(num);
+        }
+        else if (info.type == "uint16_t")
+        {
+            int num = std::stoi(val, &pos, 10);
+            if (num < std::numeric_limits<uint16_t>::min() || num > std::numeric_limits<uint16_t>::max())
+            {
+                throw std::out_of_range("parse number out of range");
+            }
+            uint16_t* ptr = (uint16_t*)info.ptr;
+            *ptr = static_cast<uint16_t>(num);
+        }
+        else if (info.type == "int32_t")
+        {
+            long long int num = std::stoll(val, &pos, 10);
+            if (num < std::numeric_limits<int32_t>::min() || num > std::numeric_limits<int32_t>::max())
+            {
+                throw std::out_of_range("parse number out of range");
+            }
+            int32_t* ptr = (int32_t*)info.ptr;
+            *ptr = static_cast<int32_t>(num);
+        }
+        else if (info.type == "uint32_t")
+        {
+            long long int num = std::stoll(val, &pos, 10);
+            if (num < std::numeric_limits<uint32_t>::min() || num > std::numeric_limits<uint32_t>::max())
+            {
+                throw std::out_of_range("parse number out of range");
+            }
+            uint32_t* ptr = (uint32_t*)info.ptr;
+            *ptr = static_cast<uint32_t>(num);
+        }
+        else if (info.type == "int64_t")
+        {
+            long long int num = std::stoll(val, &pos, 10);
+            int64_t* ptr = (int64_t*)info.ptr;
+            *ptr = static_cast<int64_t>(num);
+        }
+        else if (info.type == "uint64_t")
+        {
+            long long int num = std::stoll(val, &pos, 10);
+            uint64_t* ptr = (uint64_t*)info.ptr;
+            *ptr = static_cast<uint64_t>(num);
+        }
+        else if (info.type == "float")
+        {
+            float* ptr = (float*)info.ptr;
+            *ptr = std::stof(val, &pos);
+        }
+        else if (info.type == "double")
+        {
+            double* ptr = (double*)info.ptr;
+            *ptr = std::stod(val, &pos);
+        }
+        else if (info.type == "string")
+        {
+            std::string* ptr = (std::string*)info.ptr;
+            *ptr = val;
+        }
+    }
+    catch (const std::invalid_argument& err)
+    {
+        std::string exception_message("invalid argument, key:");
+        exception_message.append(key).append(", val:").append(val).append(", parse to ")
+                         .append(info.type).append(" failed, error message:").append(err.what());
+        throw std::invalid_argument(exception_message);
+    }
+    catch (const std::out_of_range& err)
+    {
+        std::string exception_message("invalid argument, key:");
+        exception_message.append(key).append(", val:").append(val).append(", parse to ")
+                         .append(info.type).append(" out of range, error message:").append(err.what());
+        throw std::invalid_argument(exception_message);
+    }
+}
