@@ -19,6 +19,8 @@ DEFINE_string(package, ROS_GRAPH_DEFAULT_PARAM_PACKAGE, "");
 DEFINE_string(workspace_dir, ROS_GRAPH_DEFAULT_PARAM_WORKSPACE_DIR, "");
 DEFINE_string(separator, ROS_GRAPH_DEFAULT_PARAM_SEPARATOR, "");
 
+define_cmdkey_int32(level, 0, "")
+
 CommandLineParam::CommandLineParam()
     : module_name("ros_graph")
     , is_level_set_by_cmd(false)
@@ -37,6 +39,7 @@ CommandLineParam::~CommandLineParam()
 
 bool CommandLineParam::init(int& argc, char**& argv)
 {
+    fmt::print("lxdebug, level:{}\n", cmdkey_level);
     command = argv[1];
     readParamFromCommandLine(argc, argv);
     if (findRosToolDir())

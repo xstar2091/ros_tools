@@ -7,16 +7,15 @@
 #include <unordered_map>
 #include <vector>
 #include "ros_common/cmdkey/cmdkey_info.h"
+#include "ros_common/cmdkey/cmdkey_table.h"
 
 #define CMDKEY_MIN_LEN 5
-
-std::unordered_map<std::string, CmdkeyInfo> ros_common_internal_cmdkey_info_map;
 
 void addCommandLineKey(const void* ptr, const std::string& name, const std::string& type,
                        const std::string& default_value, const std::string& desc)
 {
-    auto it = ros_common_internal_cmdkey_info_map.find(name);
-    if (it != ros_common_internal_cmdkey_info_map.end())
+    auto it = CmdkeyTable::inst()->table.find(name);
+    if (it != CmdkeyTable::inst()->table.end())
     {
         std::string exception_message("invalid command line key, already exist, name:");
         exception_message.append(name).append(", current default value:")
@@ -26,62 +25,47 @@ void addCommandLineKey(const void* ptr, const std::string& name, const std::stri
                          .append(it->second.description);
         throw std::invalid_argument(exception_message);
     }
-    ros_common_internal_cmdkey_info_map.insert(std::make_pair(name, CmdkeyInfo(ptr, name, type, desc, default_value)));
+    CmdkeyTable::inst()->table.insert(std::make_pair(name, CmdkeyInfo(ptr, name, type, desc, default_value)));
 }
 
-void Cmdkey::addKey(bool& ptr, bool default_value, const char* name, const char* desc)
+Cmdkey::Cmdkey(bool* ptr, bool default_value, const char* name, const char* desc)
 {
-    addCommandLineKey(&ptr, std::string(name), std::string("bool"), std::to_string(default_value), std::string(desc));
+    addCommandLineKey(ptr, std::string(name), std::string("bool"), std::to_string(default_value), std::string(desc));
 }
 
-void Cmdkey::addKey(int8_t& ptr, int8_t default_value, const char* name, const char* desc)
+Cmdkey::Cmdkey(int32_t* ptr, int32_t default_value, const char* name, const char* desc)
 {
-    addCommandLineKey(&ptr, std::string(name), std::string("int8_t"), std::to_string(default_value), std::string(desc));
+    addCommandLineKey(ptr, std::string(name), std::string("int32_t"), std::to_string(default_value), std::string(desc));
 }
 
-void Cmdkey::addKey(uint8_t& ptr, uint8_t default_value, const char* name, const char* desc)
+Cmdkey::Cmdkey(uint32_t* ptr, uint32_t default_value, const char* name, const char* desc)
 {
-    addCommandLineKey(&ptr, std::string(name), std::string("uint8_t"), std::to_string(default_value), std::string(desc));
+    addCommandLineKey(ptr, std::string(name), std::string("uint32_t"), std::to_string(default_value), std::string(desc));
 }
 
-void Cmdkey::addKey(int16_t& ptr, int16_t default_value, const char* name, const char* desc)
+Cmdkey::Cmdkey(int64_t* ptr, int64_t default_value, const char* name, const char* desc)
 {
-    addCommandLineKey(&ptr, std::string(name), std::string("int16_t"), std::to_string(default_value), std::string(desc));
+    addCommandLineKey(ptr, std::string(name), std::string("int64_t"), std::to_string(default_value), std::string(desc));
 }
 
-void Cmdkey::addKey(uint16_t& ptr, uint16_t default_value, const char* name, const char* desc)
+Cmdkey::Cmdkey(uint64_t* ptr, uint64_t default_value, const char* name, const char* desc)
 {
-    addCommandLineKey(&ptr, std::string(name), std::string("uint16_t"), std::to_string(default_value), std::string(desc));
+    addCommandLineKey(ptr, std::string(name), std::string("uint64_t"), std::to_string(default_value), std::string(desc));
 }
 
-void Cmdkey::addKey(int32_t& ptr, int32_t default_value, const char* name, const char* desc)
+Cmdkey::Cmdkey(float* ptr, float default_value, const char* name, const char* desc)
 {
-    addCommandLineKey(&ptr, std::string(name), std::string("int32_t"), std::to_string(default_value), std::string(desc));
+    addCommandLineKey(ptr, std::string(name), std::string("float"), std::to_string(default_value), std::string(desc));
 }
 
-void Cmdkey::addKey(uint32_t& ptr, uint32_t default_value, const char* name, const char* desc)
+Cmdkey::Cmdkey(double* ptr, double default_value, const char* name, const char* desc)
 {
-    addCommandLineKey(&ptr, std::string(name), std::string("uint32_t"), std::to_string(default_value), std::string(desc));
+    addCommandLineKey(ptr, std::string(name), std::string("double"), std::to_string(default_value), std::string(desc));
 }
 
-void Cmdkey::addKey(int64_t& ptr, int64_t default_value, const char* name, const char* desc)
+Cmdkey::Cmdkey(std::string* ptr, std::string default_value, const char* name, const char* desc)
 {
-    addCommandLineKey(&ptr, std::string(name), std::string("int64_t"), std::to_string(default_value), std::string(desc));
-}
-
-void Cmdkey::addKey(uint64_t& ptr, uint64_t default_value, const char* name, const char* desc)
-{
-    addCommandLineKey(&ptr, std::string(name), std::string("uint64_t"), std::to_string(default_value), std::string(desc));
-}
-
-void Cmdkey::addKey(float& ptr, float default_value, const char* name, const char* desc)
-{
-    addCommandLineKey(&ptr, std::string(name), std::string("float"), std::to_string(default_value), std::string(desc));
-}
-
-void Cmdkey::addKey(double& ptr, double default_value, const char* name, const char* desc)
-{
-    addCommandLineKey(&ptr, std::string(name), std::string("double"), std::to_string(default_value), std::string(desc));
+    addCommandLineKey(ptr, std::string(name), std::string("string"), default_value, std::string(desc));
 }
 
 void Cmdkey::parseCommandLine(int& argc, char** argv, bool remove_key)
@@ -135,7 +119,7 @@ void Cmdkey::parseFile(const char* file_name)
 
 void Cmdkey::reset()
 {
-    for (auto& pair : ros_common_internal_cmdkey_info_map)
+    for (auto& pair : CmdkeyTable::inst()->table)
     {
         pair.second.reset();
     }
@@ -155,11 +139,10 @@ bool Cmdkey::check(const char* kv, int index, void* index_list_ptr)
         {
             if (kv[i] == '-') count++;
         }
-        if (count != len)
+        if (count == len)
         {
-            index_list->push_back(index);
+            return false;
         }
-        return false;
     }
     if (len < CMDKEY_MIN_LEN)
     {
@@ -177,7 +160,7 @@ bool Cmdkey::check(const char* kv, int index, void* index_list_ptr)
         return false;
     }
     {
-        for (size_t i = 2; i < len; i++)
+        for (size_t i = 2; i < len - 1; i++)
         {
             if (kv[i] == '=')
             {
@@ -209,8 +192,8 @@ void Cmdkey::parseKV(const char* head, std::string& k, std::string& v)
 
 void Cmdkey::setKV(const std::string& key, const std::string& val)
 {
-    auto it = ros_common_internal_cmdkey_info_map.find(key);
-    if (it == ros_common_internal_cmdkey_info_map.end())
+    auto it = CmdkeyTable::inst()->table.find(key);
+    if (it == CmdkeyTable::inst()->table.end())
     {
         std::string exception_message("unknown command line key:");
         exception_message.append(key);
@@ -218,7 +201,6 @@ void Cmdkey::setKV(const std::string& key, const std::string& val)
     }
     CmdkeyInfo& info = it->second;
     info.is_default = false;
-    info.current_value = val;
     size_t pos{};
     try
     {
@@ -233,46 +215,7 @@ void Cmdkey::setKV(const std::string& key, const std::string& val)
             {
                 *ptr = false;
             }
-        }
-        else if (info.type == "int8_t")
-        {
-            int num = std::stoi(val, &pos, 10);
-            if (num < std::numeric_limits<int8_t>::min() || num > std::numeric_limits<int8_t>::max())
-            {
-                throw std::out_of_range("parse number out of range");
-            }
-            int8_t* ptr = (int8_t*)info.ptr;
-            *ptr = static_cast<int8_t>(num);
-        }
-        else if (info.type == "uint8_t")
-        {
-            int num = std::stoi(val, &pos, 10);
-            if (num < std::numeric_limits<uint8_t>::min() || num > std::numeric_limits<uint8_t>::max())
-            {
-                throw std::out_of_range("parse number out of range");
-            }
-            uint8_t* ptr = (uint8_t*)info.ptr;
-            *ptr = static_cast<uint8_t>(num);
-        }
-        else if (info.type == "int16_t")
-        {
-            int num = std::stoi(val, &pos, 10);
-            if (num < std::numeric_limits<int16_t>::min() || num > std::numeric_limits<int16_t>::max())
-            {
-                throw std::out_of_range("parse number out of range");
-            }
-            int16_t* ptr = (int16_t*)info.ptr;
-            *ptr = static_cast<int16_t>(num);
-        }
-        else if (info.type == "uint16_t")
-        {
-            int num = std::stoi(val, &pos, 10);
-            if (num < std::numeric_limits<uint16_t>::min() || num > std::numeric_limits<uint16_t>::max())
-            {
-                throw std::out_of_range("parse number out of range");
-            }
-            uint16_t* ptr = (uint16_t*)info.ptr;
-            *ptr = static_cast<uint16_t>(num);
+            info.current_value = std::to_string(*ptr);
         }
         else if (info.type == "int32_t")
         {
@@ -283,6 +226,7 @@ void Cmdkey::setKV(const std::string& key, const std::string& val)
             }
             int32_t* ptr = (int32_t*)info.ptr;
             *ptr = static_cast<int32_t>(num);
+            info.current_value = std::to_string(*ptr);
         }
         else if (info.type == "uint32_t")
         {
@@ -293,33 +237,39 @@ void Cmdkey::setKV(const std::string& key, const std::string& val)
             }
             uint32_t* ptr = (uint32_t*)info.ptr;
             *ptr = static_cast<uint32_t>(num);
+            info.current_value = std::to_string(*ptr);
         }
         else if (info.type == "int64_t")
         {
             long long int num = std::stoll(val, &pos, 10);
             int64_t* ptr = (int64_t*)info.ptr;
             *ptr = static_cast<int64_t>(num);
+            info.current_value = std::to_string(*ptr);
         }
         else if (info.type == "uint64_t")
         {
             long long int num = std::stoll(val, &pos, 10);
             uint64_t* ptr = (uint64_t*)info.ptr;
             *ptr = static_cast<uint64_t>(num);
+            info.current_value = std::to_string(*ptr);
         }
         else if (info.type == "float")
         {
             float* ptr = (float*)info.ptr;
             *ptr = std::stof(val, &pos);
+            info.current_value = std::to_string(*ptr);
         }
         else if (info.type == "double")
         {
             double* ptr = (double*)info.ptr;
             *ptr = std::stod(val, &pos);
+            info.current_value = std::to_string(*ptr);
         }
         else if (info.type == "string")
         {
             std::string* ptr = (std::string*)info.ptr;
             *ptr = val;
+            info.current_value = *ptr;
         }
     }
     catch (const std::invalid_argument& err)

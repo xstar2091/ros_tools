@@ -24,7 +24,7 @@ add_library(${ROS_GRAPH_LIBRARY_NAME} STATIC
     src/worker/dependtreeby/dependtreeby_worker_param.cpp
     src/worker/dependtreeby/dependtreeby_worker.cpp
 )
-target_link_directories(${ROS_GRAPH_LIBRARY_NAME} PRIVATE
+target_include_directories(${ROS_GRAPH_LIBRARY_NAME} PRIVATE
     ${Boost_INCLUDE_DIRS}
 )
 target_link_libraries(${ROS_GRAPH_LIBRARY_NAME}
@@ -39,13 +39,16 @@ target_link_libraries(${PROJECT_NAME}
     ${ROS_GRAPH_LIBRARY_NAME}
 )
 
-add_executable(unittest
-    test/command_line_param_test.cpp
-    test/graph_test.cpp
-)
-target_link_libraries(unittest
-    ${ROS_GRAPH_LIBRARY_NAME}
-    ${Boost_LIBRARIES}
-    gtest_main
-    gtest
-)
+if (UNITTEST)
+    set(UNITTEST_BIN_NAME "unittest_${PROJECT_NAME}")
+    add_executable(${UNITTEST_BIN_NAME}
+        test/command_line_param_test.cpp
+        test/graph_test.cpp
+    )
+    target_link_libraries(${UNITTEST_BIN_NAME}
+        ${ROS_GRAPH_LIBRARY_NAME}
+        ${Boost_LIBRARIES}
+        gtest_main
+        gtest
+    )
+endif()
