@@ -85,11 +85,13 @@ void Cmdkey::parseCommandLine(int& argc, char** argv, bool remove_key)
         setKV(key, val);
     }
     if (!remove_key) return;
+    size_t index_list_size = index_list.size();
     for (int i = 1, j = 0; j < static_cast<int>(index_list.size()); i++, j++)
     {
         if (i == index_list[j]) continue;
         std::swap(argv[i], argv[index_list[j]]);
     }
+    argc = static_cast<int>(index_list_size) + 1;
 }
 
 void Cmdkey::parseFile(const char* file_name)
