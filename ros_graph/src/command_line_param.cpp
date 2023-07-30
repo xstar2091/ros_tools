@@ -1,25 +1,20 @@
 #include "ros_graph/command_line_param.h"
 
-//#define STRIP_FLAG_HELP 1
-
 #include <limits>
 #include <boost/filesystem.hpp>
-#include <fmt/format.h>
-#include <gflags/gflags.h>
 #include "ros_common/cmdkey/cmdkey.h"
+#include "ros_common/cmdkey/cmdkey_info.h"
 
 #define ROS_GRAPH_ROS_TOOL_DIR_NAME ".ros_tool"
 #define ROS_GRAPH_DEFAULT_PARAM_PACKAGE ""
 #define ROS_GRAPH_DEFAULT_PARAM_WORKSPACE_DIR ""
 #define ROS_GRAPH_DEFAULT_PARAM_SEPARATOR ";"
 
-DEFINE_int32(level, 0, "");
-DEFINE_int32(indent, 4, "");
-DEFINE_string(package, ROS_GRAPH_DEFAULT_PARAM_PACKAGE, "");
-DEFINE_string(workspace_dir, ROS_GRAPH_DEFAULT_PARAM_WORKSPACE_DIR, "");
-DEFINE_string(separator, ROS_GRAPH_DEFAULT_PARAM_SEPARATOR, "");
-
-define_cmdkey_int32(level, 0, "")
+define_cmdkey_int32(level, 0, "");
+define_cmdkey_int32(indent, 4, "");
+define_cmdkey_string(package, ROS_GRAPH_DEFAULT_PARAM_PACKAGE, "");
+define_cmdkey_string(workspace_dir, ROS_GRAPH_DEFAULT_PARAM_WORKSPACE_DIR, "");
+define_cmdkey_string(separator, ROS_GRAPH_DEFAULT_PARAM_SEPARATOR, "");
 
 CommandLineParam::CommandLineParam()
     : module_name("ros_graph")
@@ -32,14 +27,8 @@ CommandLineParam::CommandLineParam()
     , indent(4)
 {}
 
-CommandLineParam::~CommandLineParam()
-{
-    gflags::ShutDownCommandLineFlags();
-}
-
 bool CommandLineParam::init(int& argc, char**& argv)
 {
-    fmt::print("lxdebug, level:{}\n", cmdkey_level);
     command = argv[1];
     readParamFromCommandLine(argc, argv);
     if (findRosToolDir())
@@ -80,38 +69,40 @@ void CommandLineParam::readParamFromRosToolDir()
     boost::filesystem::path path(ros_tool_dir);
     path = path / module_name / command;
     std::string file_path = path.string() + ".ini";
-    gflags::SetCommandLineOption("flagfile", file_path.c_str());
-
-    if (!is_level_set_by_cmd) level = FLAGS_level > 0 ? FLAGS_level : std::numeric_limits<int>::max();
-    if (!is_indent_set_by_cmd) indent = FLAGS_indent > 0 ? FLAGS_indent : 4;
-    if (!is_package_set_by_cmd) package = FLAGS_package;
-    if (!is_separator_set_by_cmd) separator = FLAGS_separator;
+    if (boost::filesystem::is_regular_file(file_path))
+    {
+        Cmdkey::parseFile(file_path.c_str());
+        if (!is_level_set_by_cmd) level = cmdkey_level > 0 ? cmdkey_level : std::numeric_limits<int>::max();
+        if (!is_indent_set_by_cmd) indent = cmdkey_indent > 0 ? cmdkey_indent : 4;
+        if (!is_package_set_by_cmd) package = cmdkey_package;
+        if (!is_separator_set_by_cmd) separator = cmdkey_separator;
+    }
 }
 
 void CommandLineParam::readParamFromCommandLine(int& argc, char**& argv)
 {
-    gflags::ParseCommandLineFlags(&argc, &argv, true);
-    gflags::CommandLineFlagInfo info;
+    Cmdkey::parseCommandLine(argc, argv, true);
+    CmdkeyInfo info;
 
-    gflags::GetCommandLineFlagInfo("level", &info);
+    info.find("level");
     if (!info.is_default) is_level_set_by_cmd = true;
-    level = FLAGS_level > 0 ? FLAGS_level : std::numeric_limits<int>::max();
+    level = cmdkey_level > 0 ? cmdkey_level : std::numeric_limits<int>::max();
 
-    gflags::GetCommandLineFlagInfo("indent", &info);
+    info.find("indent");
     if (!info.is_default) is_indent_set_by_cmd = true;
-    indent = FLAGS_indent > 0 ? FLAGS_indent : 4;
+    indent = cmdkey_indent > 0 ? cmdkey_indent : 4;
 
-    gflags::GetCommandLineFlagInfo("package", &info);
+    info.find("package");
     if (!info.is_default) is_package_set_by_cmd = true;
-    package = FLAGS_package;
+    package = cmdkey_package;
 
-    gflags::GetCommandLineFlagInfo("workspace_dir", &info);
+    info.find("workspace_dir");
     if (!info.is_default) is_workspace_dir_set_by_cmd = true;
-    workspace_dir = FLAGS_workspace_dir;
+    workspace_dir = cmdkey_workspace_dir;
 
-    gflags::GetCommandLineFlagInfo("separator", &info);
+    info.find("separator");
     if (!info.is_default) is_separator_set_by_cmd = true;
-    separator = FLAGS_separator;
+    separator = cmdkey_separator;
     if (separator == "\\n") separator = "\n";
     if (separator == "\\r\\n") separator = "\r\n";
     if (separator == ROS_GRAPH_DEFAULT_PARAM_SEPARATOR)

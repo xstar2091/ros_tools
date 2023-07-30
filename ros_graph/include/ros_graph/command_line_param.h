@@ -6,7 +6,6 @@ class CommandLineParam
 {
 public:
     CommandLineParam();
-    ~CommandLineParam();
     bool init(int& argc, char**& argv);
 
 public:

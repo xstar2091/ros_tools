@@ -1,9 +1,9 @@
 #include "ros_graph/worker/depend/depend_worker.h"
 
 #include <algorithm>
+#include <iostream>
 #include <queue>
 #include <boost/algorithm/string.hpp>
-#include <fmt/format.h>
 
 DependWorker::~DependWorker()
 {}
@@ -35,7 +35,7 @@ bool DependWorker::check()
     {
         if (!depend_graph_.depend_graph().isNodeExist(package))
         {
-            fmt::print(stderr, "unknown package: {}\n", package);
+            std::cerr<<"unknown package: "<<package<<std::endl;
             return false;
         }
     }
@@ -111,10 +111,10 @@ void DependWorker::sortPackages(std::vector<std::string>& package_list)
 void DependWorker::printPackages(std::vector<std::string>& package_list)
 {
     auto it = package_list.begin();
-    fmt::print("{}", *it);
+    std::cout<<*it;
     for (++it; it != package_list.end(); ++it)
     {
-        fmt::print("{}{}", param_.separator, *it);
+        std::cout<<param_.separator<<*it;
     }
-    fmt::print("\n");
+    std::cout<<std::endl;
 }

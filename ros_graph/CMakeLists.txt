@@ -31,7 +31,6 @@ target_link_libraries(${ROS_GRAPH_LIBRARY_NAME}
     ros_common
     ${Boost_LIBRARIES}
     fmt
-    gflags
 )
 
 add_executable(${PROJECT_NAME} src/main.cpp)

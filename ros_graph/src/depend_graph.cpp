@@ -1,9 +1,9 @@
 #include "ros_graph/depend_graph.h"
 
 #include <fstream>
+#include <iostream>
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
-#include <fmt/format.h>
 
 bool doFindDependPackage(std::ifstream& ifs, std::vector<std::string>& vec)
 {
@@ -51,7 +51,7 @@ bool PackageInfo::init()
     std::ifstream ifs(package_xml_file_path);
     if (!ifs)
     {
-        fmt::print(stderr, "open package.xml failed: {}\n", path);
+        std::cerr<<"open package.xml failed: "<<package_xml_file_path<<std::endl;
         return false;
     }
     std::string line;
@@ -70,7 +70,7 @@ void PackageInfo::findDependPackage(const std::function<void(const std::string&,
     std::ifstream ifs(cmake_lists_txt_file_path);
     if (!ifs)
     {
-        fmt::print(stderr, "open CMakeLists.txt failed: {}\n", cmake_lists_txt_file_path);
+        std::cerr<<"open CMakeLists.txt failed: "<<cmake_lists_txt_file_path<<std::endl;
         return;
     }
 
@@ -95,7 +95,7 @@ bool DependGraph::init(const std::string& workspace_dir)
     readAllPackage(workspace_dir);
     if (depend_map_.empty())
     {
-        fmt::print(stderr, "init depend graph failed, no package found\n");
+        std::cerr<<"init depend graph failed, no package found"<<std::endl;
         return false;
     }
     for (auto& pair : depend_map_)

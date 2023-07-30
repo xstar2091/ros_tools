@@ -1,9 +1,10 @@
 #include "ros_graph/worker/dependtreeby/dependtreeby_worker.h"
 
 #include <algorithm>
+#include <iomanip>
+#include <iostream>
 #include <queue>
 #include <boost/algorithm/string.hpp>
-#include <fmt/format.h>
 
 DependTreeByWorker::~DependTreeByWorker()
 {}
@@ -35,7 +36,7 @@ bool DependTreeByWorker::check()
     {
         if (!depend_graph_.depend_graph().isNodeExist(package))
         {
-            fmt::print(stderr, "unknown package: {}\n", package);
+            std::cerr<<"unknown package: "<<package<<std::endl;;
             return false;
         }
     }
@@ -74,11 +75,10 @@ void DependTreeByWorker::printPackage(int indent, const std::string& package_nam
 {
     if (indent == 0)
     {
-        fmt::print("{}\n", package_name);
+        std::cout<<package_name<<std::endl;
     }
     else
     {
-        fmt::print(param_.separator_format_string, param_.separator, indent);
-        fmt::print("{}\n", package_name);
+        std::cout<<std::setw(indent)<<std::setfill(param_.separator[0])<<param_.separator<<package_name<<std::endl;
     }
 }

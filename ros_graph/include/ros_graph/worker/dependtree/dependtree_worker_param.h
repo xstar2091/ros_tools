@@ -16,7 +16,6 @@ public:
     std::string package;
     std::string workspace_dir;
     std::string separator;
-    std::string separator_format_string;
 
 private:
     bool check();
