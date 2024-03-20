@@ -25,10 +25,14 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        dialog.cpp
+        dialog.cpp \
+    data/fileinfo.cpp
 
 HEADERS += \
-        dialog.h
+        dialog.h \
+    data/fileinfo.h
 
 FORMS += \
         dialog.ui
+
+LIBS += -lboost_filesystem -lboost_system
