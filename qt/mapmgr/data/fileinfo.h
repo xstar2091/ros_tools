@@ -6,6 +6,7 @@
 class FileInfo
 {
 public:
+    void clear();
     void reset(const std::string& full_path);
 
 public:

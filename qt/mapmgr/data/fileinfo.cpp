@@ -2,6 +2,14 @@
 
 #include <boost/filesystem.hpp>
 
+void FileInfo::clear()
+{
+    extention_ = "";
+    file_name_ = "";
+    full_path_ = "";
+    parent_ = "";
+}
+
 void FileInfo::reset(const std::string &full_path)
 {
     boost::filesystem::path path(full_path);

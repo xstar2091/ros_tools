@@ -26,11 +26,15 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
         dialog.cpp \
-    data/fileinfo.cpp
+    data/fileinfo.cpp \
+    data/mapcollection.cpp \
+    data/mapgroup.cpp
 
 HEADERS += \
         dialog.h \
-    data/fileinfo.h
+    data/fileinfo.h \
+    data/mapcollection.h \
+    data/mapgroup.h
 
 FORMS += \
         dialog.ui
