@@ -28,15 +28,17 @@ SOURCES += \
         dialog.cpp \
     data/fileinfo.cpp \
     data/mapcollection.cpp \
-    data/mapgroup.cpp
+    data/mapgroup.cpp \
+    data/semanticinfo.cpp
 
 HEADERS += \
         dialog.h \
     data/fileinfo.h \
     data/mapcollection.h \
-    data/mapgroup.h
+    data/mapgroup.h \
+    data/semanticinfo.h
 
 FORMS += \
         dialog.ui
 
-LIBS += -lboost_filesystem -lboost_system
+LIBS += -lboost_filesystem -lboost_system -lyaml-cpp

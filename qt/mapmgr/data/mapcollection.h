@@ -9,6 +9,7 @@
 class MapCollection
 {
 public:
+    static MapCollection* instance();
     void clear();
     void init(const std::string& collection_info_file);
     const MapGroup* findGroup(const std::string& group_id) const;

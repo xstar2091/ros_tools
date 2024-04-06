@@ -11,6 +11,12 @@ std::string default_collection_info_name("collectionInfo.xml");
 
 }
 
+MapCollection *MapCollection::instance()
+{
+    static MapCollection inst;
+    return &inst;
+}
+
 void MapCollection::clear()
 {
     id_ = "";
