@@ -16,6 +16,11 @@ public:
     ~Dialog();
 
 private:
+    void initUi();
+    void onLoadButtonClicked();
+    void onOpenButtonClicked();
+
+private:
     Ui::Dialog *ui;
 };
 
