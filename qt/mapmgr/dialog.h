@@ -20,6 +20,8 @@ private:
     void onLoadButtonClicked();
     void onOpenButtonClicked();
 
+    void resetMapGroupTable();
+
 private:
     Ui::Dialog *ui;
 };
