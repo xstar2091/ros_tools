@@ -17,12 +17,14 @@ public:
 public:
     const std::string& id() const { return id_; }
     const std::string& name() const { return name_; }
+    const std::string& path() const { return path_; }
     const MapGroup* default_group() const { return default_group_; }
     const std::vector<MapGroup>& group_list() const { return group_list_; }
 
 private:
     std::string id_;
     std::string name_;
+    std::string path_;
     MapGroup* default_group_;
     std::vector<MapGroup> group_list_;
     std::unordered_map<std::string, MapGroup*> group_table_;

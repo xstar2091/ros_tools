@@ -24,21 +24,29 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
-        main.cpp \
-        dialog.cpp \
+    main.cpp \
+    dialog.cpp \
     data/fileinfo.cpp \
     data/mapcollection.cpp \
     data/mapgroup.cpp \
-    data/semanticinfo.cpp
+    data/semanticinfo.cpp \
+    ros_helper/publishermanager.cpp
 
 HEADERS += \
-        dialog.h \
+    dialog.h \
     data/fileinfo.h \
     data/mapcollection.h \
     data/mapgroup.h \
-    data/semanticinfo.h
+    data/semanticinfo.h \
+    ros_helper/publishermanager.h
 
 FORMS += \
-        dialog.ui
+    dialog.ui
 
-LIBS += -lboost_filesystem -lboost_system -lyaml-cpp
+INCLUDEPATH += \
+    /opt/ros/melodic/include \
+    /home/lx/catkin_ws/devel/include
+
+LIBS += -lboost_filesystem -lboost_system -lyaml-cpp \
+    -L/opt/ros/melodic/lib \
+    -lroscpp -lrosconsole -lroscpp_serialization -lrostime

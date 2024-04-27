@@ -9,12 +9,18 @@ void MapGroup::clear()
     vectormap_.osm.clear();
     id_ = "";
     name_ = "";
+    path_ = "";
 }
 
 bool MapGroup::init(MapCollection *collection, const std::string &map_info_file)
 {
     clear();
     collection_ = collection;
+    {
+        FileInfo map_info;
+        map_info.reset(map_info_file);
+        path_ = map_info.parent();
+    }
 
     boost::property_tree::ptree ptree;
     boost::property_tree::xml_parser::read_xml(map_info_file, ptree);

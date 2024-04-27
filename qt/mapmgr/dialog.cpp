@@ -9,6 +9,7 @@
 #include <QStringList>
 
 #include "data/mapcollection.h"
+#include "ros_helper/publishermanager.h"
 
 namespace
 {
@@ -50,23 +51,25 @@ void Dialog::initUi()
 
     connect(ui->loadButton, &QPushButton::clicked, this, &Dialog::onLoadButtonClicked);
     connect(ui->openButton, &QPushButton::clicked, this, &Dialog::onOpenButtonClicked);
-
-    // test data
-    ui->mapGroupTable->setRowCount(1);
-    ui->mapGroupTable->setItem(0, 0, new QTableWidgetItem("id11111"));
-    ui->mapGroupTable->setItem(0, 1, new QTableWidgetItem("test map 11111"));
-//    ui->mapGroupTable->setItem(1, 0, new QTableWidgetItem("id22222"));
-//    ui->mapGroupTable->setItem(1, 1, new QTableWidgetItem("test map 22222"));
-//    ui->mapGroupTable->setItem(2, 0, new QTableWidgetItem("id33333"));
-//    ui->mapGroupTable->setItem(2, 1, new QTableWidgetItem("test map 33333"));
 }
 
 void Dialog::onLoadButtonClicked()
 {
-    QModelIndexList list = ui->mapGroupTable->selectionModel()->selectedRows();
-    QString msg = QString("selected row index: %1").arg(list.at(0).row());
-    QMessageBox mb;
-    mb.information(this, "test", msg);
+    int selected_index = getSelectedIndex();
+    if (selected_index < 0)
+    {
+        QMessageBox::critical(this, "错误", "请先选择一个地图组");
+        return;
+    }
+    auto& group_list = MapCollection::instance()->group_list();
+    if (selected_index >= static_cast<int>(group_list.size()))
+    {
+        QString msg = QString("索引错乱了\n选中项的索引似乎是: %1\n但地图组总数是: %2\n索引的取值范围应该是: [0, %2)")
+                .arg(selected_index).arg(group_list.size());
+        QMessageBox::critical(this, "错误", msg);
+    }
+    auto& group = group_list[selected_index];
+    PublisherManager::instance()->publishChangeMap(group);
 }
 
 void Dialog::onOpenButtonClicked()
@@ -95,6 +98,16 @@ void Dialog::onOpenButtonClicked()
     {
         QString error_msg = QString("发生错误:\n%1").arg(QString::fromStdString(err.what()));
     }
+}
+
+int Dialog::getSelectedIndex()
+{
+    QModelIndexList selected_index_list = ui->mapGroupTable->selectionModel()->selectedRows();
+    if (selected_index_list.count() == 0)
+    {
+        return -1;
+    }
+    return selected_index_list.at(0).row();
 }
 
 void Dialog::resetMapGroupTable()

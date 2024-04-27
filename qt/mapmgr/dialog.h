@@ -20,6 +20,7 @@ private:
     void onLoadButtonClicked();
     void onOpenButtonClicked();
 
+    int getSelectedIndex();
     void resetMapGroupTable();
 
 private:

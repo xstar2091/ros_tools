@@ -28,6 +28,7 @@ public:
     const VectorMap& vectormap() const { return vectormap_; }
     const std::string& id() const { return id_; }
     const std::string& name() const { return name_; }
+    const std::string& path() const { return path_; }
 
 private:
     MapCollection* collection_;
@@ -35,6 +36,7 @@ private:
     VectorMap vectormap_;
     std::string id_;
     std::string name_;
+    std::string path_;
 };
 
 #endif // MAPGROUP_H

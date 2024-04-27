@@ -29,6 +29,12 @@ void MapCollection::clear()
 void MapCollection::init(const std::string &collection_info_file)
 {
     clear();
+    {
+        FileInfo collection_info;
+        collection_info.reset(collection_info_file);
+        path_ = collection_info.parent();
+    }
+
     boost::property_tree::ptree ptree;
     boost::property_tree::xml_parser::read_xml(collection_info_file, ptree);
     const boost::property_tree::ptree& root = ptree.get_child("xml");
