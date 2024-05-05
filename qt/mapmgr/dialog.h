@@ -18,6 +18,7 @@ public:
 private:
     void initUi();
     void onLoadButtonClicked();
+    void onPreloadButtonClicked();
     void onOpenButtonClicked();
 
     int getSelectedIndex();

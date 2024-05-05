@@ -13,6 +13,7 @@ public:
     static PublisherManager* instance();
     void init();
     void publishChangeMap(const MapGroup& group);
+    void publishPreloadMap(const MapGroup& group);
 
 private:
     ros::Publisher change_map_pub_;

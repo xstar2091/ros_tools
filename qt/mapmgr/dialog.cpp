@@ -50,6 +50,7 @@ void Dialog::initUi()
     ui->mapGroupTable->setSelectionMode(QTableWidget::SingleSelection);
 
     connect(ui->loadButton, &QPushButton::clicked, this, &Dialog::onLoadButtonClicked);
+    connect(ui->preloadButton, &QPushButton::clicked, this, &Dialog::onPreloadButtonClicked);
     connect(ui->openButton, &QPushButton::clicked, this, &Dialog::onOpenButtonClicked);
 }
 
@@ -70,6 +71,25 @@ void Dialog::onLoadButtonClicked()
     }
     auto& group = group_list[selected_index];
     PublisherManager::instance()->publishChangeMap(group);
+}
+
+void Dialog::onPreloadButtonClicked()
+{
+    int selected_index = getSelectedIndex();
+    if (selected_index < 0)
+    {
+        QMessageBox::critical(this, "错误", "请先选择一个地图组");
+        return;
+    }
+    auto& group_list = MapCollection::instance()->group_list();
+    if (selected_index >= static_cast<int>(group_list.size()))
+    {
+        QString msg = QString("索引错乱了\n选中项的索引似乎是: %1\n但地图组总数是: %2\n索引的取值范围应该是: [0, %2)")
+                .arg(selected_index).arg(group_list.size());
+        QMessageBox::critical(this, "错误", msg);
+    }
+    auto& group = group_list[selected_index];
+    PublisherManager::instance()->publishPreloadMap(group);
 }
 
 void Dialog::onOpenButtonClicked()
