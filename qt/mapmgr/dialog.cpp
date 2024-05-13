@@ -31,6 +31,9 @@ Dialog::Dialog(QWidget *parent) :
     ui(new Ui::Dialog)
 {
     ui->setupUi(this);
+
+    current_map_index_ = -1;
+    preload_map_index_ = -1;
     initUi();
 }
 
@@ -69,8 +72,16 @@ void Dialog::onLoadButtonClicked()
                 .arg(selected_index).arg(group_list.size());
         QMessageBox::critical(this, "错误", msg);
     }
+
+    if (current_map_index_ >= 0)
+    {
+        ui->mapGroupTable->setItem(current_map_index_, column_index_load, new QTableWidgetItem(""));
+    }
+    ui->mapGroupTable->setItem(selected_index, column_index_load, new QTableWidgetItem("加载中"));
     auto& group = group_list[selected_index];
     PublisherManager::instance()->publishChangeMap(group);
+    current_map_index_ = selected_index;
+    ui->mapGroupTable->setItem(current_map_index_, column_index_load, new QTableWidgetItem("完成"));
 }
 
 void Dialog::onPreloadButtonClicked()
@@ -88,8 +99,16 @@ void Dialog::onPreloadButtonClicked()
                 .arg(selected_index).arg(group_list.size());
         QMessageBox::critical(this, "错误", msg);
     }
+
+    if (preload_map_index_ >= 0)
+    {
+        ui->mapGroupTable->setItem(preload_map_index_, column_index_preload, new QTableWidgetItem(""));
+    }
+    ui->mapGroupTable->setItem(selected_index, column_index_preload, new QTableWidgetItem("预加载中"));
     auto& group = group_list[selected_index];
     PublisherManager::instance()->publishPreloadMap(group);
+    preload_map_index_ = selected_index;
+    ui->mapGroupTable->setItem(preload_map_index_, column_index_preload, new QTableWidgetItem("完成"));
 }
 
 void Dialog::onOpenButtonClicked()

@@ -26,6 +26,8 @@ private:
 
 private:
     Ui::Dialog *ui;
+    int current_map_index_;
+    int preload_map_index_;
 };
 
 #endif // DIALOG_H
