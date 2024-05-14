@@ -30,7 +30,8 @@ SOURCES += \
     data/mapcollection.cpp \
     data/mapgroup.cpp \
     data/semanticinfo.cpp \
-    ros_helper/publishermanager.cpp
+    ros_helper/publishermanager.cpp \
+    globalplandialog.cpp
 
 HEADERS += \
     dialog.h \
@@ -38,10 +39,12 @@ HEADERS += \
     data/mapcollection.h \
     data/mapgroup.h \
     data/semanticinfo.h \
-    ros_helper/publishermanager.h
+    ros_helper/publishermanager.h \
+    globalplandialog.h
 
 FORMS += \
-    dialog.ui
+    dialog.ui \
+    globalplandialog.ui
 
 INCLUDEPATH += \
     /opt/ros/melodic/include \
