@@ -146,7 +146,7 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_6">
           <item>
-           <widget class="QLineEdit" name="lineEdit_14"/>
+           <widget class="QLineEdit" name="selectPathLineEdit"/>
           </item>
           <item>
            <widget class="QPushButton" name="selectPathButton">
