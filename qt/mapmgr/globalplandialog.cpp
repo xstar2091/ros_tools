@@ -1,9 +1,12 @@
 #include "globalplandialog.h"
 #include "ui_globalplandialog.h"
 
+#include <QMessageBox>
 #include <QScrollBar>
 #include <robot_msg/MultimapMakePlan.h>
 #include "data/mapcollection.h"
+#include "ros_helper/publishermanager.h"
+#include "ros_helper/subscribermanager.h"
 
 GlobalPlanDialog::GlobalPlanDialog(QWidget *parent) :
     QDialog(parent),
@@ -12,7 +15,6 @@ GlobalPlanDialog::GlobalPlanDialog(QWidget *parent) :
     ui->setupUi(this);
 
     initUi();
-    initRos();
 }
 
 GlobalPlanDialog::~GlobalPlanDialog()
@@ -40,20 +42,19 @@ void GlobalPlanDialog::initUi()
 {
     QScrollBar* bar = new QScrollBar(this);
     ui->topologyPathTreeWidget->setVerticalScrollBar(bar);
+    ui->topologyNodeNameTreeWidget->setVerticalScrollBar(bar);
     ui->mapChangeAreaTreeWidget->setVerticalScrollBar(bar);
     ui->startEndPointTreeWidget->setVerticalScrollBar(bar);
 
     ui->topologyPathTreeWidget->setHeaderHidden(true);
+    ui->topologyNodeNameTreeWidget->setHeaderHidden(true);
     ui->mapChangeAreaTreeWidget->setHeaderHidden(true);
     ui->startEndPointTreeWidget->setHeaderHidden(true);
 
     connect(ui->makePlanButton, &QPushButton::clicked, this, &GlobalPlanDialog::onMakePlanButtonClicked);
-}
 
-void GlobalPlanDialog::initRos()
-{
-    ros::NodeHandle nh;
-    make_plan_pub_ = nh.advertise<robot_msg::MultimapMakePlan>("/multimap_planner_2d_node/make_plan", 1);
+    SubscriberManager* sub = SubscriberManager::instance();
+    connect(sub, &SubscriberManager::topologyPathReceivedEvent, this, &GlobalPlanDialog::handleMultimapTopologyPathListMessage);
 }
 
 void GlobalPlanDialog::clearAll()
@@ -80,6 +81,20 @@ void GlobalPlanDialog::clearAll()
     ui->exceptionCodeLineEdit->clear();
 
     ui->topologyPathTreeWidget->clear();
+    ui->topologyNodeNameTreeWidget->clear();
+    ui->mapChangeAreaTreeWidget->clear();
+    ui->startEndPointTreeWidget->clear();
+}
+
+void GlobalPlanDialog::clearResultShow()
+{
+    ui->selectPathLineEdit->clear();
+
+    ui->statusLineEdit->clear();
+    ui->exceptionCodeLineEdit->clear();
+
+    ui->topologyPathTreeWidget->clear();
+    ui->topologyNodeNameTreeWidget->clear();
     ui->mapChangeAreaTreeWidget->clear();
     ui->startEndPointTreeWidget->clear();
 }
@@ -87,6 +102,7 @@ void GlobalPlanDialog::clearAll()
 void GlobalPlanDialog::clearTopologyTree()
 {
     ui->topologyPathTreeWidget->clear();
+    ui->topologyNodeNameTreeWidget->clear();
     ui->mapChangeAreaTreeWidget->clear();
     ui->startEndPointTreeWidget->clear();
 }
@@ -101,13 +117,126 @@ void GlobalPlanDialog::handleMultimapStatusMessage(robot_msg::MultimapStatusCons
 
 }
 
-void GlobalPlanDialog::handleMultimapTopologyPathListMessage(robot_msg::MultimapTopologyPathListConstPtr msg)
+void GlobalPlanDialog::handleMultimapTopologyPathListMessage(void* ptr)
+{
+    robot_msg::MultimapTopologyPathList* msg = (robot_msg::MultimapTopologyPathList*)ptr;
+    try
+    {
+        for (auto& topology_path : msg->path_list)
+        {
+            updateTopologyPathTree(topology_path);
+            updateTopologyNodeNameTree(topology_path);
+            updateMapChangeAreaTree(topology_path);
+            updateStartEndPointTree(topology_path);
+        }
+        ui->topologyPathTreeWidget->expandAll();
+        ui->topologyNodeNameTreeWidget->expandAll();
+        ui->mapChangeAreaTreeWidget->expandAll();
+        ui->startEndPointTreeWidget->expandAll();
+    }
+    catch (const std::exception& err)
+    {
+        QMessageBox::critical(this, "错误", QString::fromStdString(std::string(err.what())));
+    }
+    delete msg;
+}
+
+void GlobalPlanDialog::updateTopologyPathTree(const robot_msg::MultimapTopologyPath &topology_path)
+{
+    QTreeWidgetItem* item = new QTreeWidgetItem(QStringList()<<QString("路径%1(%2)").arg(topology_path.path_index).arg(topology_path.path_cost));
+    ui->topologyPathTreeWidget->addTopLevelItem(item);
+    QTreeWidgetItem* child = nullptr;
+    for (auto& node : topology_path.path)
+    {
+        QString text = QString("%1").arg(QString::fromStdString(node.map_group_id));
+        child = new QTreeWidgetItem(QStringList()<<text);
+        item->addChild(child);
+    }
+}
+
+void GlobalPlanDialog::updateTopologyNodeNameTree(const robot_msg::MultimapTopologyPath &topology_path)
+{
+    QTreeWidgetItem* item = new QTreeWidgetItem(QStringList()<<QString("路径%1(%2)").arg(topology_path.path_index).arg(topology_path.path_cost));
+    ui->topologyNodeNameTreeWidget->addTopLevelItem(item);
+    QTreeWidgetItem* child = nullptr;
+    const MapGroup* group = nullptr;
+    for (auto& node : topology_path.path)
+    {
+        group = MapCollection::instance()->findGroup(node.map_group_id);
+        if (group == nullptr)
+        {
+            QString error = QString("无法找到返回的地图组信息\n地图集：%1\n地图组：%2")
+                    .arg(QString::fromStdString(node.map_collection_id))
+                    .arg(QString::fromStdString(node.map_group_id));
+            throw std::runtime_error(error.toStdString());
+        }
+        QString text = QString("%1").arg(QString::fromStdString(group->name()));
+        child = new QTreeWidgetItem(QStringList()<<text);
+        item->addChild(child);
+    }
+}
+
+namespace
 {
 
+std::unordered_map<uint8_t, QString> map_switch_type_table = {
+    {1, "电梯"},
+    {2, "电梯"},
+    {3, "门禁"},
+    {4, "门禁"},
+};
+QString unknown_map_switch_type("未知");
+
+const QString& getMapSwithType(uint8_t type)
+{
+    auto it = map_switch_type_table.find(type);
+    if (it != map_switch_type_table.end())
+    {
+        return it->second;
+    }
+    return unknown_map_switch_type;
+}
+
+}
+
+void GlobalPlanDialog::updateMapChangeAreaTree(const robot_msg::MultimapTopologyPath &topology_path)
+{
+    QTreeWidgetItem* item = new QTreeWidgetItem(QStringList()<<QString("路径%1(%2)").arg(topology_path.path_index).arg(topology_path.path_cost));
+    ui->mapChangeAreaTreeWidget->addTopLevelItem(item);
+    QTreeWidgetItem* child = nullptr;
+    for (auto& node : topology_path.path)
+    {
+        QString text = QString("%1").arg(node.from_switch_area.id);
+        if (node.from_pose_type != 0)
+        {
+            text.append(QString("(%1:%2)").arg(getMapSwithType(node.from_pose_type)).arg(int(node.from_pose_type)));
+        }
+        text.append(QString(" -> %1").arg(node.to_switch_area.id));
+        if (node.to_pose_type != 0)
+        {
+            text.append(QString("(%1:%2").arg(getMapSwithType(node.to_pose_type)).arg((int)node.to_pose_type));
+        }
+        child = new QTreeWidgetItem(QStringList()<<text);
+        item->addChild(child);
+    }
+}
+
+void GlobalPlanDialog::updateStartEndPointTree(const robot_msg::MultimapTopologyPath &topology_path)
+{
+    QTreeWidgetItem* item = new QTreeWidgetItem(QStringList()<<QString("路径%1(%2)").arg(topology_path.path_index).arg(topology_path.path_cost));
+    ui->startEndPointTreeWidget->addTopLevelItem(item);
+    QTreeWidgetItem* child = nullptr;
+    for (auto& node : topology_path.path)
+    {
+        QString text = QString("(%1, %2) -> (%3, %4)").arg(node.from_pose.position.x).arg(node.from_pose.position.y).arg(node.to_pose.position.x).arg(node.to_pose.position.y);
+        child = new QTreeWidgetItem(QStringList()<<text);
+        item->addChild(child);
+    }
 }
 
 void GlobalPlanDialog::onMakePlanButtonClicked()
 {
+    clearResultShow();
     robot_msg::MultimapMakePlan msg;
     msg.header.frame_id = "map";
     msg.header.stamp = ros::Time::now();
@@ -123,5 +252,5 @@ void GlobalPlanDialog::onMakePlanButtonClicked()
     msg.to_pose.position.y = strtod(ui->goalMapPointYLineEdit->text().toStdString().c_str(), nullptr);
     msg.to_pose.position.z = 0.0;
     msg.to_pose.orientation.w = 1.0;
-    make_plan_pub_.publish(msg);
+    PublisherManager::instance()->publishMultimapMakePlan(msg);
 }

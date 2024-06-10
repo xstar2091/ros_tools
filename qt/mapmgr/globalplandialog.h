@@ -2,7 +2,6 @@
 #define GLOBALPLANDIALOG_H
 
 #include <QDialog>
-#include <ros/ros.h>
 #include <robot_msg/ExceptionInfo.h>
 #include <robot_msg/MultimapStatus.h>
 #include <robot_msg/MultimapTopologyPathList.h>
@@ -27,20 +26,20 @@ public:
 
 private:
     void initUi();
-    void initRos();
     void clearAll();
+    void clearResultShow();
     void clearTopologyTree();
     void handleExceptionInfoMessage(robot_msg::ExceptionInfoConstPtr msg);
     void handleMultimapStatusMessage(robot_msg::MultimapStatusConstPtr msg);
-    void handleMultimapTopologyPathListMessage(robot_msg::MultimapTopologyPathListConstPtr msg);
+    void handleMultimapTopologyPathListMessage(void* ptr);
+    void updateTopologyPathTree(const robot_msg::MultimapTopologyPath& topology_path);
+    void updateTopologyNodeNameTree(const robot_msg::MultimapTopologyPath& topology_path);
+    void updateMapChangeAreaTree(const robot_msg::MultimapTopologyPath& topology_path);
+    void updateStartEndPointTree(const robot_msg::MultimapTopologyPath& topology_path);
     void onMakePlanButtonClicked();
 
 private:
     Ui::GlobalPlanDialog *ui;
-    ros::Subscriber status_sub_;
-    ros::Subscriber topology_path_sub_;
-    ros::Subscriber exception_code_sub_;
-    ros::Publisher make_plan_pub_;
 };
 
 #endif // GLOBALPLANDIALOG_H

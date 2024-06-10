@@ -31,7 +31,9 @@ SOURCES += \
     data/mapgroup.cpp \
     data/semanticinfo.cpp \
     ros_helper/publishermanager.cpp \
-    globalplandialog.cpp
+    globalplandialog.cpp \
+    ros_helper/subscribermanager.cpp \
+    ros_helper/roshelper.cpp
 
 HEADERS += \
     dialog.h \
@@ -40,7 +42,9 @@ HEADERS += \
     data/mapgroup.h \
     data/semanticinfo.h \
     ros_helper/publishermanager.h \
-    globalplandialog.h
+    globalplandialog.h \
+    ros_helper/subscribermanager.h \
+    ros_helper/roshelper.h
 
 FORMS += \
     dialog.ui \
@@ -50,6 +54,6 @@ INCLUDEPATH += \
     /opt/ros/melodic/include \
     /home/lx/catkin_ws/devel/include
 
-LIBS += -lboost_filesystem -lboost_system -lyaml-cpp \
+LIBS += -lboost_filesystem -lboost_system -lyaml-cpp -lpthread \
     -L/opt/ros/melodic/lib \
     -lroscpp -lrosconsole -lroscpp_serialization -lrostime
