@@ -214,7 +214,7 @@ void GlobalPlanDialog::updateMapChangeAreaTree(const robot_msg::MultimapTopology
         text.append(QString(" -> %1").arg(node.to_switch_area.id));
         if (node.to_pose_type != 0)
         {
-            text.append(QString("(%1:%2").arg(getMapSwithType(node.to_pose_type)).arg((int)node.to_pose_type));
+            text.append(QString("(%1:%2)").arg(getMapSwithType(node.to_pose_type)).arg((int)node.to_pose_type));
         }
         child = new QTreeWidgetItem(QStringList()<<text);
         item->addChild(child);
