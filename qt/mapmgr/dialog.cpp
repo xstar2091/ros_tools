@@ -131,7 +131,7 @@ void Dialog::onGoalPointButtongClicked()
 
     if (goal_map_index_ >= 0)
     {
-        QString text = getCellText(selected_index, column_index_global_plann);
+        QString text = getCellText(goal_map_index_, column_index_global_plann);
         if (text == "终点")
         {
             ui->mapGroupTable->setItem(goal_map_index_, column_index_global_plann, new QTableWidgetItem(""));
@@ -140,7 +140,7 @@ void Dialog::onGoalPointButtongClicked()
     auto& group = MapCollection::instance()->group_list()[selected_index];
     global_plan_dlg->setGoalMap(group);
     goal_map_index_ = selected_index;
-    QString text = getCellText(selected_index, column_index_global_plann);
+    QString text = getCellText(goal_map_index_, column_index_global_plann);
     if (text.isEmpty())
     {
         text = "终点";
