@@ -20,10 +20,11 @@ public:
 private:
     void handleExceptionCode(const robot_msg::ExceptionInfoConstPtr& msg);
     void handleMultimapStatus(const robot_msg::MultimapStatusConstPtr& msg);
-    void handleMultimapTopologyPathList(robot_msg::MultimapTopologyPathListPtr msg);
+    void handleMultimapTopologyPathList(const robot_msg::MultimapTopologyPathListConstPtr& msg);
 
 signals:
-    void topologyPathReceivedEvent(void* msg);
+    void multimapStatusReceiveEvent(void* msg);
+    void multimapTopologyPathListReceivedEvent(void* msg);
 
 private:
     std::thread thrd_;

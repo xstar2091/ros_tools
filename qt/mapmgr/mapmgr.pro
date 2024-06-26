@@ -33,7 +33,8 @@ SOURCES += \
     ros_helper/publishermanager.cpp \
     globalplandialog.cpp \
     ros_helper/subscribermanager.cpp \
-    ros_helper/roshelper.cpp
+    ros_helper/roshelper.cpp \
+    ros_helper/rosenumstring.cpp
 
 HEADERS += \
     dialog.h \
@@ -44,7 +45,8 @@ HEADERS += \
     ros_helper/publishermanager.h \
     globalplandialog.h \
     ros_helper/subscribermanager.h \
-    ros_helper/roshelper.h
+    ros_helper/roshelper.h \
+    ros_helper/rosenumstring.h
 
 FORMS += \
     dialog.ui \

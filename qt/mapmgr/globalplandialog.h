@@ -30,7 +30,7 @@ private:
     void clearResultShow();
     void clearTopologyTree();
     void handleExceptionInfoMessage(robot_msg::ExceptionInfoConstPtr msg);
-    void handleMultimapStatusMessage(robot_msg::MultimapStatusConstPtr msg);
+    void handleMultimapStatusMessage(void* ptr);
     void handleMultimapTopologyPathListMessage(void* ptr);
     void updateTopologyPathTree(const robot_msg::MultimapTopologyPath& topology_path);
     void updateTopologyNodeNameTree(const robot_msg::MultimapTopologyPath& topology_path);

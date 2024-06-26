@@ -6,6 +6,7 @@
 #include <robot_msg/MultimapMakePlan.h>
 #include "data/mapcollection.h"
 #include "ros_helper/publishermanager.h"
+#include "ros_helper/rosenumstring.h"
 #include "ros_helper/subscribermanager.h"
 
 GlobalPlanDialog::GlobalPlanDialog(QWidget *parent) :
@@ -54,7 +55,8 @@ void GlobalPlanDialog::initUi()
     connect(ui->makePlanButton, &QPushButton::clicked, this, &GlobalPlanDialog::onMakePlanButtonClicked);
 
     SubscriberManager* sub = SubscriberManager::instance();
-    connect(sub, &SubscriberManager::topologyPathReceivedEvent, this, &GlobalPlanDialog::handleMultimapTopologyPathListMessage);
+    connect(sub, &SubscriberManager::multimapStatusReceiveEvent, this, &GlobalPlanDialog::handleMultimapStatusMessage);
+    connect(sub, &SubscriberManager::multimapTopologyPathListReceivedEvent, this, &GlobalPlanDialog::handleMultimapTopologyPathListMessage);
 }
 
 void GlobalPlanDialog::clearAll()
@@ -112,9 +114,22 @@ void GlobalPlanDialog::handleExceptionInfoMessage(robot_msg::ExceptionInfoConstP
 
 }
 
-void GlobalPlanDialog::handleMultimapStatusMessage(robot_msg::MultimapStatusConstPtr msg)
+void GlobalPlanDialog::handleMultimapStatusMessage(void* ptr)
 {
+    robot_msg::MultimapStatus* msg = (robot_msg::MultimapStatus*)ptr;
+    const QString& status = RosEnumString::instance()->multimap_status().toString(msg->status_code);
+    delete msg;
 
+    QString text = ui->statusLineEdit->text();
+    if (text.isEmpty())
+    {
+        text = status;
+    }
+    else
+    {
+        text.append("; ").append(status);
+    }
+    ui->statusLineEdit->setText(text);
 }
 
 void GlobalPlanDialog::handleMultimapTopologyPathListMessage(void* ptr)
@@ -176,45 +191,23 @@ void GlobalPlanDialog::updateTopologyNodeNameTree(const robot_msg::MultimapTopol
     }
 }
 
-namespace
-{
-
-std::unordered_map<uint8_t, QString> map_switch_type_table = {
-    {1, "电梯"},
-    {2, "电梯"},
-    {3, "门禁"},
-    {4, "门禁"},
-};
-QString unknown_map_switch_type("未知");
-
-const QString& getMapSwithType(uint8_t type)
-{
-    auto it = map_switch_type_table.find(type);
-    if (it != map_switch_type_table.end())
-    {
-        return it->second;
-    }
-    return unknown_map_switch_type;
-}
-
-}
-
 void GlobalPlanDialog::updateMapChangeAreaTree(const robot_msg::MultimapTopologyPath &topology_path)
 {
     QTreeWidgetItem* item = new QTreeWidgetItem(QStringList()<<QString("路径%1(%2)").arg(topology_path.path_index).arg(topology_path.path_cost));
     ui->mapChangeAreaTreeWidget->addTopLevelItem(item);
     QTreeWidgetItem* child = nullptr;
+    const MapSwitchType& map_switch_type = RosEnumString::instance()->map_switch_type();
     for (auto& node : topology_path.path)
     {
         QString text = QString("%1").arg(node.from_switch_area.id);
         if (node.from_pose_type != 0)
         {
-            text.append(QString("(%1:%2)").arg(getMapSwithType(node.from_pose_type)).arg(int(node.from_pose_type)));
+            text.append(QString("(%1:%2)").arg(map_switch_type.toString(node.from_pose_type)).arg(int(node.from_pose_type)));
         }
         text.append(QString(" -> %1").arg(node.to_switch_area.id));
         if (node.to_pose_type != 0)
         {
-            text.append(QString("(%1:%2)").arg(getMapSwithType(node.to_pose_type)).arg((int)node.to_pose_type));
+            text.append(QString("(%1:%2)").arg(map_switch_type.toString(node.to_pose_type)).arg((int)node.to_pose_type));
         }
         child = new QTreeWidgetItem(QStringList()<<text);
         item->addChild(child);
