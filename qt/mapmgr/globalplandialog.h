@@ -29,7 +29,7 @@ private:
     void clearAll();
     void clearResultShow();
     void clearTopologyTree();
-    void handleExceptionInfoMessage(robot_msg::ExceptionInfoConstPtr msg);
+    void handleExceptionInfoMessage(void* ptr);
     void handleMultimapStatusMessage(void* ptr);
     void handleMultimapTopologyPathListMessage(void* ptr);
     void updateTopologyPathTree(const robot_msg::MultimapTopologyPath& topology_path);

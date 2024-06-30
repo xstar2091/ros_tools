@@ -28,14 +28,16 @@ void SubscriberManager::init()
 
 void SubscriberManager::handleExceptionCode(const robot_msg::ExceptionInfoConstPtr &msg)
 {
-
+    robot_msg::ExceptionInfo* ei = new robot_msg::ExceptionInfo();
+    *ei = *msg;
+    emit exceptionCodeReceivedEvent(ei);
 }
 
 void SubscriberManager::handleMultimapStatus(const robot_msg::MultimapStatusConstPtr &msg)
 {
     robot_msg::MultimapStatus* status = new robot_msg::MultimapStatus();
     *status = *msg;
-    emit multimapStatusReceiveEvent(status);
+    emit multimapStatusReceivedEvent(status);
 }
 
 void SubscriberManager::handleMultimapTopologyPathList(const robot_msg::MultimapTopologyPathListConstPtr& msg)

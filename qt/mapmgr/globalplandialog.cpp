@@ -55,7 +55,8 @@ void GlobalPlanDialog::initUi()
     connect(ui->makePlanButton, &QPushButton::clicked, this, &GlobalPlanDialog::onMakePlanButtonClicked);
 
     SubscriberManager* sub = SubscriberManager::instance();
-    connect(sub, &SubscriberManager::multimapStatusReceiveEvent, this, &GlobalPlanDialog::handleMultimapStatusMessage);
+    connect(sub, &SubscriberManager::exceptionCodeReceivedEvent, this, &GlobalPlanDialog::handleExceptionInfoMessage);
+    connect(sub, &SubscriberManager::multimapStatusReceivedEvent, this, &GlobalPlanDialog::handleMultimapStatusMessage);
     connect(sub, &SubscriberManager::multimapTopologyPathListReceivedEvent, this, &GlobalPlanDialog::handleMultimapTopologyPathListMessage);
 }
 
@@ -109,9 +110,29 @@ void GlobalPlanDialog::clearTopologyTree()
     ui->startEndPointTreeWidget->clear();
 }
 
-void GlobalPlanDialog::handleExceptionInfoMessage(robot_msg::ExceptionInfoConstPtr msg)
+void GlobalPlanDialog::handleExceptionInfoMessage(void* ptr)
 {
+    QString exception_code_str;
+    robot_msg::ExceptionInfo* msg = (robot_msg::ExceptionInfo*)ptr;
+    for (const std::string& ec : msg->exception_code)
+    {
+        exception_code_str.append(QString::fromStdString(ec)).append("; ");
+    }
+    delete msg;
 
+    if (exception_code_str.isEmpty()) return;
+    exception_code_str.remove(exception_code_str.size() - 2, 2);
+
+    QString text = ui->exceptionCodeLineEdit->text();
+    if (text.isEmpty())
+    {
+        text = exception_code_str;
+    }
+    else
+    {
+        text.append("; ").append(exception_code_str);
+    }
+    ui->exceptionCodeLineEdit->setText(text);
 }
 
 void GlobalPlanDialog::handleMultimapStatusMessage(void* ptr)

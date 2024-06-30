@@ -23,7 +23,8 @@ private:
     void handleMultimapTopologyPathList(const robot_msg::MultimapTopologyPathListConstPtr& msg);
 
 signals:
-    void multimapStatusReceiveEvent(void* msg);
+    void exceptionCodeReceivedEvent(void* msg);
+    void multimapStatusReceivedEvent(void* msg);
     void multimapTopologyPathListReceivedEvent(void* msg);
 
 private:
