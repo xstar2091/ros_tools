@@ -1,6 +1,7 @@
 #ifndef GLOBALPLANDIALOG_H
 #define GLOBALPLANDIALOG_H
 
+#include <unordered_map>
 #include <QDialog>
 #include <robot_msg/ExceptionInfo.h>
 #include <robot_msg/MultimapStatus.h>
@@ -11,6 +12,7 @@ class GlobalPlanDialog;
 }
 
 class MapGroup;
+class QTreeWidgetItem;
 
 class GlobalPlanDialog : public QDialog
 {
@@ -32,14 +34,23 @@ private:
     void handleExceptionInfoMessage(void* ptr);
     void handleMultimapStatusMessage(void* ptr);
     void handleMultimapTopologyPathListMessage(void* ptr);
-    void updateTopologyPathTree(const robot_msg::MultimapTopologyPath& topology_path);
-    void updateTopologyNodeNameTree(const robot_msg::MultimapTopologyPath& topology_path);
-    void updateMapChangeAreaTree(const robot_msg::MultimapTopologyPath& topology_path);
-    void updateStartEndPointTree(const robot_msg::MultimapTopologyPath& topology_path);
+    void updateTopologyPathTree(int startId, const robot_msg::MultimapTopologyPath& topology_path);
+    void updateTopologyNodeNameTree(int startId, const robot_msg::MultimapTopologyPath& topology_path);
+    void updateMapChangeAreaTree(int startId, const robot_msg::MultimapTopologyPath& topology_path);
+    void updateStartEndPointTree(int startId, const robot_msg::MultimapTopologyPath& topology_path);
     void onMakePlanButtonClicked();
+    void topologyPathTreeItemSelected(QTreeWidgetItem* item, int);
+    void topologyNodeNameTreeItemSelected(QTreeWidgetItem* item, int);
+    void mapChangeAreaTreeItemSelected(QTreeWidgetItem* item, int);
+    void startEndPointTreeItemSelected(QTreeWidgetItem* item, int);
+    void changeTreeSelectedItem(int itemId, std::unordered_map<int, QTreeWidgetItem*>& table);
 
 private:
     Ui::GlobalPlanDialog *ui;
+    std::unordered_map<int, QTreeWidgetItem*> topologyPathTreeItemTable;
+    std::unordered_map<int, QTreeWidgetItem*> topologyNodeNameTreeItemTable;
+    std::unordered_map<int, QTreeWidgetItem*> mapChangeAreaTreeItemTable;
+    std::unordered_map<int, QTreeWidgetItem*> startEndPointTreeItemTable;
 };
 
 #endif // GLOBALPLANDIALOG_H
