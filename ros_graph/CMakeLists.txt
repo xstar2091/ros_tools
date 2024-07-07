@@ -30,7 +30,6 @@ target_include_directories(${ROS_GRAPH_LIBRARY_NAME} PRIVATE
 target_link_libraries(${ROS_GRAPH_LIBRARY_NAME}
     ros_common
     ${Boost_LIBRARIES}
-    fmt
 )
 
 add_executable(${PROJECT_NAME} src/main.cpp)

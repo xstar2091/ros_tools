@@ -1,5 +1,6 @@
 #include "ros_common/cmdkey/cmdkey_info.h"
 
+#include <cstdint>
 #include <limits>
 #include <stdexcept>
 #include <unordered_map>
