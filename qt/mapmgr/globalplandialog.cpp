@@ -170,7 +170,7 @@ void GlobalPlanDialog::handleMultimapTopologyPathListMessage(void* ptr)
             updateTopologyNodeNameTree(startId, topology_path);
             updateMapChangeAreaTree(startId, topology_path);
             updateStartEndPointTree(startId, topology_path);
-            startId += 10000;
+            startId += (static_cast<int>(topology_path.path.size()) + 1);
         }
         ui->topologyPathTreeWidget->expandAll();
         ui->topologyNodeNameTreeWidget->expandAll();
