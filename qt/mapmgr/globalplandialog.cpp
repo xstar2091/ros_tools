@@ -190,21 +190,24 @@ namespace
 enum
 {
     tree_column_index_show_text = 0,
-    tree_column_tree_item_id,
+    tree_column_index_tree_item_id = 1,
+    tree_column_index_path_index = 2,
 };
 
 }
 
 void GlobalPlanDialog::updateTopologyPathTree(int startId, const robot_msg::MultimapTopologyPath &topology_path)
 {
-    QTreeWidgetItem* item = new QTreeWidgetItem(QStringList()<<QString("路径%1(%2)").arg(topology_path.path_index).arg(topology_path.path_cost)<<QString("%1").arg(startId));
+    QTreeWidgetItem* item = new QTreeWidgetItem(QStringList()<<QString("路径%1(%2)").arg(topology_path.path_index).arg(topology_path.path_cost)
+                                                             <<QString("%1").arg(startId)
+                                                             <<QString("%1").arg(topology_path.path_index));
     topologyPathTreeItemTable.insert(std::make_pair(startId++, item));
     ui->topologyPathTreeWidget->addTopLevelItem(item);
     QTreeWidgetItem* child = nullptr;
     for (auto& node : topology_path.path)
     {
         QString text = QString("%1").arg(QString::fromStdString(node.map_group_id));
-        child = new QTreeWidgetItem(QStringList()<<text<<QString("%1").arg(startId));
+        child = new QTreeWidgetItem(QStringList()<<text<<QString("%1").arg(startId)<<QString("%1").arg(topology_path.path_index));
         topologyPathTreeItemTable.insert(std::make_pair(startId++, child));
         item->addChild(child);
     }
@@ -212,7 +215,9 @@ void GlobalPlanDialog::updateTopologyPathTree(int startId, const robot_msg::Mult
 
 void GlobalPlanDialog::updateTopologyNodeNameTree(int startId, const robot_msg::MultimapTopologyPath &topology_path)
 {
-    QTreeWidgetItem* item = new QTreeWidgetItem(QStringList()<<QString("路径%1(%2)").arg(topology_path.path_index).arg(topology_path.path_cost)<<QString("%1").arg(startId));
+    QTreeWidgetItem* item = new QTreeWidgetItem(QStringList()<<QString("路径%1(%2)").arg(topology_path.path_index).arg(topology_path.path_cost)
+                                                             <<QString("%1").arg(startId)
+                                                             <<QString("%1").arg(topology_path.path_index));
     topologyNodeNameTreeItemTable.insert(std::make_pair(startId++, item));
     ui->topologyNodeNameTreeWidget->addTopLevelItem(item);
     QTreeWidgetItem* child = nullptr;
@@ -228,7 +233,7 @@ void GlobalPlanDialog::updateTopologyNodeNameTree(int startId, const robot_msg::
             throw std::runtime_error(error.toStdString());
         }
         QString text = QString("%1").arg(QString::fromStdString(group->name()));
-        child = new QTreeWidgetItem(QStringList()<<text<<QString("%1").arg(startId));
+        child = new QTreeWidgetItem(QStringList()<<text<<QString("%1").arg(startId)<<QString("%1").arg(topology_path.path_index));
         topologyNodeNameTreeItemTable.insert(std::make_pair(startId++, child));
         item->addChild(child);
     }
@@ -236,7 +241,9 @@ void GlobalPlanDialog::updateTopologyNodeNameTree(int startId, const robot_msg::
 
 void GlobalPlanDialog::updateMapChangeAreaTree(int startId, const robot_msg::MultimapTopologyPath &topology_path)
 {
-    QTreeWidgetItem* item = new QTreeWidgetItem(QStringList()<<QString("路径%1(%2)").arg(topology_path.path_index).arg(topology_path.path_cost)<<QString("%1").arg(startId));
+    QTreeWidgetItem* item = new QTreeWidgetItem(QStringList()<<QString("路径%1(%2)").arg(topology_path.path_index).arg(topology_path.path_cost)
+                                                             <<QString("%1").arg(startId)
+                                                             <<QString("%1").arg(topology_path.path_index));
     mapChangeAreaTreeItemTable.insert(std::make_pair(startId++, item));
     ui->mapChangeAreaTreeWidget->addTopLevelItem(item);
     QTreeWidgetItem* child = nullptr;
@@ -253,7 +260,7 @@ void GlobalPlanDialog::updateMapChangeAreaTree(int startId, const robot_msg::Mul
         {
             text.append(QString("(%1:%2)").arg(map_switch_type.toString(node.to_pose_type)).arg((int)node.to_pose_type));
         }
-        child = new QTreeWidgetItem(QStringList()<<text<<QString("%1").arg(startId));
+        child = new QTreeWidgetItem(QStringList()<<text<<QString("%1").arg(startId)<<QString("%1").arg(topology_path.path_index));
         mapChangeAreaTreeItemTable.insert(std::make_pair(startId++, child));
         item->addChild(child);
     }
@@ -261,14 +268,16 @@ void GlobalPlanDialog::updateMapChangeAreaTree(int startId, const robot_msg::Mul
 
 void GlobalPlanDialog::updateStartEndPointTree(int startId, const robot_msg::MultimapTopologyPath &topology_path)
 {
-    QTreeWidgetItem* item = new QTreeWidgetItem(QStringList()<<QString("路径%1(%2)").arg(topology_path.path_index).arg(topology_path.path_cost)<<QString("%1").arg(startId));
+    QTreeWidgetItem* item = new QTreeWidgetItem(QStringList()<<QString("路径%1(%2)").arg(topology_path.path_index).arg(topology_path.path_cost)
+                                                             <<QString("%1").arg(startId)
+                                                             <<QString("%1").arg(topology_path.path_index));
     startEndPointTreeItemTable.insert(std::make_pair(startId++, item));
     ui->startEndPointTreeWidget->addTopLevelItem(item);
     QTreeWidgetItem* child = nullptr;
     for (auto& node : topology_path.path)
     {
         QString text = QString("(%1, %2) -> (%3, %4)").arg(node.from_pose.position.x).arg(node.from_pose.position.y).arg(node.to_pose.position.x).arg(node.to_pose.position.y);
-        child = new QTreeWidgetItem(QStringList()<<text<<QString("%1").arg(startId));
+        child = new QTreeWidgetItem(QStringList()<<text<<QString("%1").arg(startId)<<QString("%1").arg(topology_path.path_index));
         startEndPointTreeItemTable.insert(std::make_pair(startId++, child));
         item->addChild(child);
     }
@@ -297,7 +306,7 @@ void GlobalPlanDialog::onMakePlanButtonClicked()
 
 void GlobalPlanDialog::topologyPathTreeItemSelected(QTreeWidgetItem *item, int)
 {
-    QString itemIdStr = item->text(tree_column_tree_item_id);
+    QString itemIdStr = item->text(tree_column_index_tree_item_id);
     if (itemIdStr.isEmpty())
     {
         return;
@@ -307,11 +316,12 @@ void GlobalPlanDialog::topologyPathTreeItemSelected(QTreeWidgetItem *item, int)
     changeTreeSelectedItem(itemId, topologyNodeNameTreeItemTable);
     changeTreeSelectedItem(itemId, mapChangeAreaTreeItemTable);
     changeTreeSelectedItem(itemId, startEndPointTreeItemTable);
+    updateSelectedPath(item);
 }
 
 void GlobalPlanDialog::topologyNodeNameTreeItemSelected(QTreeWidgetItem *item, int)
 {
-    QString itemIdStr = item->text(tree_column_tree_item_id);
+    QString itemIdStr = item->text(tree_column_index_tree_item_id);
     if (itemIdStr.isEmpty())
     {
         return;
@@ -321,11 +331,12 @@ void GlobalPlanDialog::topologyNodeNameTreeItemSelected(QTreeWidgetItem *item, i
     changeTreeSelectedItem(itemId, topologyPathTreeItemTable);
     changeTreeSelectedItem(itemId, mapChangeAreaTreeItemTable);
     changeTreeSelectedItem(itemId, startEndPointTreeItemTable);
+    updateSelectedPath(item);
 }
 
 void GlobalPlanDialog::mapChangeAreaTreeItemSelected(QTreeWidgetItem *item, int)
 {
-    QString itemIdStr = item->text(tree_column_tree_item_id);
+    QString itemIdStr = item->text(tree_column_index_tree_item_id);
     if (itemIdStr.isEmpty())
     {
         return;
@@ -335,11 +346,12 @@ void GlobalPlanDialog::mapChangeAreaTreeItemSelected(QTreeWidgetItem *item, int)
     changeTreeSelectedItem(itemId, topologyPathTreeItemTable);
     changeTreeSelectedItem(itemId, topologyNodeNameTreeItemTable);
     changeTreeSelectedItem(itemId, startEndPointTreeItemTable);
+    updateSelectedPath(item);
 }
 
 void GlobalPlanDialog::startEndPointTreeItemSelected(QTreeWidgetItem *item, int)
 {
-    QString itemIdStr = item->text(tree_column_tree_item_id);
+    QString itemIdStr = item->text(tree_column_index_tree_item_id);
     if (itemIdStr.isEmpty())
     {
         return;
@@ -349,6 +361,7 @@ void GlobalPlanDialog::startEndPointTreeItemSelected(QTreeWidgetItem *item, int)
     changeTreeSelectedItem(itemId, topologyPathTreeItemTable);
     changeTreeSelectedItem(itemId, topologyNodeNameTreeItemTable);
     changeTreeSelectedItem(itemId, mapChangeAreaTreeItemTable);
+    updateSelectedPath(item);
 }
 
 void GlobalPlanDialog::changeTreeSelectedItem(int itemId, std::unordered_map<int, QTreeWidgetItem *> &table)
@@ -368,4 +381,11 @@ void GlobalPlanDialog::changeTreeSelectedItem(int itemId, std::unordered_map<int
     {
         item->setSelected(true);
     }
+}
+
+void GlobalPlanDialog::updateSelectedPath(QTreeWidgetItem *item)
+{
+    QString selectedPathIndexStr = item->text(tree_column_index_path_index);
+    if (selectedPathIndexStr.isEmpty()) return;
+    ui->selectPathLineEdit->setText(selectedPathIndexStr);
 }
