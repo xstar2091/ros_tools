@@ -53,6 +53,7 @@ void GlobalPlanDialog::initUi()
     ui->startEndPointTreeWidget->setHeaderHidden(true);
 
     connect(ui->makePlanButton, &QPushButton::clicked, this, &GlobalPlanDialog::onMakePlanButtonClicked);
+    connect(ui->selectPathButton, &QPushButton::clicked, this, &GlobalPlanDialog::onSelectPathButtonClicked);
 
     connect(ui->topologyPathTreeWidget, &QTreeWidget::itemClicked, this, &GlobalPlanDialog::topologyPathTreeItemSelected);
     connect(ui->topologyNodeNameTreeWidget, &QTreeWidget::itemClicked, this, &GlobalPlanDialog::topologyNodeNameTreeItemSelected);
@@ -388,4 +389,22 @@ void GlobalPlanDialog::updateSelectedPath(QTreeWidgetItem *item)
     QString selectedPathIndexStr = item->text(tree_column_index_path_index);
     if (selectedPathIndexStr.isEmpty()) return;
     ui->selectPathLineEdit->setText(selectedPathIndexStr);
+}
+
+void GlobalPlanDialog::onSelectPathButtonClicked()
+{
+    QString selectedPathIndexStr = ui->selectPathLineEdit->text();
+    if (selectedPathIndexStr.isEmpty())
+    {
+        QMessageBox::critical(this, "错误", "请先选择一条路径");
+        return;
+    }
+    bool ok = false;
+    unsigned int selectedPathIndex = selectedPathIndexStr.toUInt(&ok);
+    if (!ok)
+    {
+        QMessageBox::critical(this, "错误", "路径索引必须是一个数字");
+        return;
+    }
+    PublisherManager::instance()->publishMultimapSelectPath(static_cast<uint8_t>(selectedPathIndexStr.toUInt()));
 }

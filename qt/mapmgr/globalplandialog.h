@@ -45,6 +45,7 @@ private:
     void startEndPointTreeItemSelected(QTreeWidgetItem* item, int);
     void changeTreeSelectedItem(int itemId, std::unordered_map<int, QTreeWidgetItem*>& table);
     void updateSelectedPath(QTreeWidgetItem* item);
+    void onSelectPathButtonClicked();
 
 private:
     Ui::GlobalPlanDialog *ui;
