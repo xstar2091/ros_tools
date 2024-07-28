@@ -14,6 +14,7 @@ void PublisherManager::init()
     ros::NodeHandle& nh = RosHelper::instance()->node_handle();
     change_map_pub_ = nh.advertise<robot_msg::AlterMap>("altermap_to_map", 1);
     multimap_make_plan_pub_ = nh.advertise<robot_msg::MultimapMakePlan>("/multimap_planner_2d_node/make_plan", 1);
+    multimap_replan_pub_ = nh.advertise<robot_msg::MultimapReplan>("/multimap_planner_2d_node/replan", 1);
     multimap_select_path_pub_ = nh.advertise<robot_msg::MultimapSelectPath>("/multimap_planner_2d_node/select_path", 1);
     preload_map_pub_ = nh.advertise<robot_msg::PreloadCostmap>("preload_costmap", 1);
 }
@@ -42,6 +43,11 @@ void PublisherManager::publishMultimapSelectPath(uint8_t path_index)
 void PublisherManager::publishMultimapMakePlan(const robot_msg::MultimapMakePlan &msg)
 {
     multimap_make_plan_pub_.publish(msg);
+}
+
+void PublisherManager::publishMultimapReplan(const robot_msg::MultimapReplan &msg)
+{
+    multimap_replan_pub_.publish(msg);
 }
 
 void PublisherManager::publishPreloadMap(const MapGroup &group)

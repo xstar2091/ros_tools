@@ -23,14 +23,20 @@ public:
     ~GlobalPlanDialog();
 
 public:
+    enum {
+        clear_mask_plan = 0x1,
+        clear_mask_replan = 0x2,
+        clear_mask_select_path = 0x4,
+        clear_mask_status_show = 0x8,
+        clear_mask_topology_tree = 0x10,
+        clear_mask_all = clear_mask_plan | clear_mask_replan | clear_mask_select_path | clear_mask_status_show | clear_mask_topology_tree,
+    };
+    void clearAll(int mask = clear_mask_all);
     void setStartMap(const MapGroup& group);
     void setGoalMap(const MapGroup& group);
 
 private:
     void initUi();
-    void clearAll();
-    void clearResultShow();
-    void clearTopologyTree();
     void handleExceptionInfoMessage(void* ptr);
     void handleMultimapStatusMessage(void* ptr);
     void handleMultimapTopologyPathListMessage(void* ptr);
@@ -46,6 +52,8 @@ private:
     void changeTreeSelectedItem(int itemId, std::unordered_map<int, QTreeWidgetItem*>& table);
     void updateSelectedPath(QTreeWidgetItem* item);
     void onSelectPathButtonClicked();
+    void updateReplanUi(QTreeWidgetItem* item);
+    void onReplanButtonClicked();
 
 private:
     Ui::GlobalPlanDialog *ui;
