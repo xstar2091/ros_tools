@@ -156,6 +156,10 @@ void GlobalPlanDialog::handleMultimapStatusMessage(void* ptr)
 
 void GlobalPlanDialog::handleMultimapTopologyPathListMessage(void* ptr)
 {
+    topologyPathTreeItemTable.clear();
+    topologyNodeNameTreeItemTable.clear();
+    mapChangeAreaTreeItemTable.clear();
+    startEndPointTreeItemTable.clear();
     robot_msg::MultimapTopologyPathList* msg = (robot_msg::MultimapTopologyPathList*)ptr;
     try
     {
