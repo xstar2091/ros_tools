@@ -14,6 +14,7 @@ class SubscriberManager : public QObject
 
 public:
     explicit SubscriberManager(QObject* parent = nullptr);
+    ~SubscriberManager();
     static SubscriberManager* instance();
     void init();
 

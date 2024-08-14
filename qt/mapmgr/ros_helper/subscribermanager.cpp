@@ -8,6 +8,15 @@ SubscriberManager::SubscriberManager(QObject *parent)
 
 }
 
+SubscriberManager::~SubscriberManager()
+{
+    if (thrd_.joinable())
+    {
+        ros::shutdown();
+        thrd_.join();
+    }
+}
+
 SubscriberManager *SubscriberManager::instance()
 {
     static SubscriberManager inst;
